@@ -2,7 +2,14 @@ package com.altruist.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+// Colores principales para Altruist
+val White = Color(0xFFFFFFFF)
+val Black = Color(0xFF000000)
+val YellowDark = Color(0xFFDFA63D)  // Botón principal (Iniciar sesión)
+val YellowLight = Color(0xFFEAD6B1) // Botón secundario (Registrarse)
+val Brown = Color(0xFF5D2C1D)       // Texto del logo
+
+// Fondo degradado
+val BackgroundTop = Color(0xFFEDE1CB)
+val BackgroundBottom = White
+

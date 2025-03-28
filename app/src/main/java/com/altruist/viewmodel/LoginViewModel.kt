@@ -5,36 +5,65 @@ import androidx.lifecycle.viewModelScope
 import com.altruist.data.model.LoginRequest
 import com.altruist.data.model.LoginResponse
 import com.altruist.data.network.RetrofitInstance
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
-//Hereda de ViewModel(), en Kotlin puedes directamente indicar que quieres llamar a su constructor vacío poniendo las (). De hecho es necesario para que no de error.
 class LoginViewModel : ViewModel() {
 
-    //privado y mutable: Solo viewmodel puede modificarlo. Por nomenclatura, la privada la escribimos con _
-    private val _loginResult = MutableStateFlow<Result<LoginResponse>?>(null)
-    //publico y solo lectura: así la view puede observarlo pero no modificarlo
-    val loginResult = _loginResult.asStateFlow()
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
 
-    fun login(email: String, password: String) {
-        //Se lanza coroutine que se ejecuta en segundo plano, evitando bloquear la UI
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _loginResult = MutableStateFlow<Result<LoginResponse>?>(null)
+    val loginResult: StateFlow<Result<LoginResponse>?> = _loginResult
+
+    fun onEmailChange(value: String) {
+        _email.value = value
+    }
+
+    fun onPasswordChange(value: String) {
+        _password.value = value
+    }
+
+    fun onLoginClick() {
+        if (_email.value.isBlank() || _password.value.isBlank()) {
+            _errorMessage.value = "Por favor, completa todos los campos"
+            return
+        }
+
+        _isLoading.value = true
+        _errorMessage.value = null
+
         viewModelScope.launch {
             try {
-                val response = RetrofitInstance.api.login(LoginRequest(email, password))
-                if (response.isSuccessful) {
-                    _loginResult.value = Result.success(response.body()!!)  //La doble exclamación indica al compilador que response.body() no devolverá null, para evitar error de compilación.
-                                                                            //Si devolviera null, se lanzaría un NullPointerException. Pero en principio el servidor siempre devolverá un body.
+                val response = RetrofitInstance.api.login(LoginRequest(_email.value, _password.value))
+                if (response.isSuccessful && response.body() != null) {
+                    _loginResult.value = Result.success(response.body()!!)
                 } else {
                     _loginResult.value = Result.failure(Exception("Error: ${response.code()}"))
                 }
             } catch (e: IOException) {
-                _loginResult.value = Result.failure(e)
+                _loginResult.value = Result.failure(Exception("Error de red: ${e.message}"))
             } catch (e: HttpException) {
-                _loginResult.value = Result.failure(e)
+                _loginResult.value = Result.failure(Exception("Error del servidor: ${e.message}"))
+            } finally {
+                _isLoading.value = false
             }
         }
     }
+
+    fun showError(message: String) {
+        _errorMessage.value = message
+    }
+
 }
