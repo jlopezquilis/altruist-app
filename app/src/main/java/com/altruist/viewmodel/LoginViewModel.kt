@@ -2,15 +2,21 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.altruist.data.model.LoginRequest
-import com.altruist.data.model.LoginResponse
+import com.altruist.data.network.dto.auth.LoginRequest
+import com.altruist.data.network.dto.auth.LoginResponse
 import com.altruist.data.network.RetrofitInstance
+import com.altruist.data.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import javax.inject.Inject
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val repository: AuthRepository
+) : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -45,20 +51,9 @@ class LoginViewModel : ViewModel() {
         _errorMessage.value = null
 
         viewModelScope.launch {
-            try {
-                val response = RetrofitInstance.api.login(LoginRequest(_email.value, _password.value))
-                if (response.isSuccessful && response.body() != null) {
-                    _loginResult.value = Result.success(response.body()!!)
-                } else {
-                    _loginResult.value = Result.failure(Exception("Error: ${response.code()}"))
-                }
-            } catch (e: IOException) {
-                _loginResult.value = Result.failure(Exception("Error de red: ${e.message}"))
-            } catch (e: HttpException) {
-                _loginResult.value = Result.failure(Exception("Error del servidor: ${e.message}"))
-            } finally {
-                _isLoading.value = false
-            }
+            val result = repository.login(_email.value, _password.value)
+            _loginResult.value = result
+            _isLoading.value = false
         }
     }
 

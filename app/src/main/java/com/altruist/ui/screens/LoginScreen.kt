@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
 import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.theme.BackgroundTop
@@ -20,8 +21,7 @@ import com.altruist.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = viewModel(),
-    //onLoginSuccess: () -> Unit = {}
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
