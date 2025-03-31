@@ -1,5 +1,6 @@
 package com.altruist.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,8 +22,7 @@ fun AltruistTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = { Text(placeholder) },
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.medium,
         singleLine = singleLine,
         visualTransformation = visualTransformation,
         colors = TextFieldDefaults.colors(
@@ -33,6 +33,8 @@ fun AltruistTextField(
             unfocusedIndicatorColor = Color.Transparent,
             disabledIndicatorColor = Color.Transparent,
             cursorColor = Color.Black
-        )
+        ),
+        modifier = modifier
+            .fillMaxWidth()
     )
 }

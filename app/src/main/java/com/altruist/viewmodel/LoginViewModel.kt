@@ -2,6 +2,7 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.model.User
 import com.altruist.data.network.dto.auth.LoginRequest
 import com.altruist.data.network.dto.auth.LoginResponse
 import com.altruist.data.network.RetrofitInstance
@@ -32,6 +33,8 @@ class LoginViewModel @Inject constructor(
 
     private val _loginResult = MutableStateFlow<Result<LoginResponse>?>(null)
     val loginResult: StateFlow<Result<LoginResponse>?> = _loginResult
+
+    val currentUser: Flow<User?> = repository.getLoggedInUser()
 
     fun onEmailChange(value: String) {
         _email.value = value

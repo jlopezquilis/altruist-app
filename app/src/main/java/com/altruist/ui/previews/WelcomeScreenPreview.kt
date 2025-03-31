@@ -6,6 +6,8 @@ import com.altruist.ui.theme.AltruistTheme
 import com.altruist.ui.screens.WelcomeScreen
 import com.altruist.ui.components.PrimaryButton
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.screens.LoginScreen
+import com.altruist.ui.screens.LoginScreenPreviewContent
 
 @Preview(showBackground = true, name = "Welcome Screen")
 @Composable
@@ -33,19 +35,13 @@ fun SecondaryButtonPreview() {
         SecondaryButton(text = "Registrarse", onClick = {})
     }
 }
-
+*/
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     AltruistTheme {
-        LoginScreen(
-            email = "",
-            password = "",
-            onEmailChange = {},
-            onPasswordChange = {},
-            onLoginClick = {},
-            errorMessage = "Texto de error"
+        LoginScreenPreviewContent(
         )
     }
 }
-*/
+

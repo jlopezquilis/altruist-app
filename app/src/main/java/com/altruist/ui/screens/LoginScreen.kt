@@ -9,6 +9,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
@@ -17,6 +18,7 @@ import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.altruist.ui.components.PrimaryButton
+import com.altruist.ui.theme.ErrorTextStyle
 import com.altruist.viewmodel.LoginViewModel
 
 @Composable
@@ -28,16 +30,111 @@ fun LoginScreen(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val loginResult by viewModel.loginResult.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val user by viewModel.currentUser.collectAsState(initial = null)
 
     // Navegar si login fue exitoso
     LaunchedEffect(loginResult) {
         loginResult?.onSuccess {
             //onLoginSuccess()
-            viewModel.showError("Inicio de sesión exitoso: ${it.name}")
+            viewModel.showError("Hola, ${it.name}")
         }?.onFailure {
-            viewModel.showError("Error al iniciar sesión: ${it.message}")
+            viewModel.showError("Error al iniciar sesión. \n${it.message}")
         }
     }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to BackgroundTop,
+                        0.6f to BackgroundTop,
+                        1.0f to BackgroundBottom
+                    )
+                )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 40.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.weight(0.10f))
+
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo Altruist",
+                modifier = Modifier.size(230.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(0.10f))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("E-mail",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
+                    AltruistTextField(
+                        value = email,
+                        onValueChange = viewModel::onEmailChange,
+                        placeholder = "E-mail"
+                    )
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Contraseña",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
+                    AltruistTextField(
+                        value = password,
+                        onValueChange = viewModel::onPasswordChange,
+                        placeholder = "Contraseña",
+                        visualTransformation = PasswordVisualTransformation()
+                    )
+                }
+            }
+
+            // Error message
+
+            Text(
+                text = errorMessage?:"",
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.error,
+                style = ErrorTextStyle,
+                modifier = Modifier.padding(top = 35.dp)
+            )
+
+
+            Spacer(modifier = Modifier.weight(0.10f))
+
+            PrimaryButton(
+                text = if (isLoading) "Cargando..." else "Iniciar Sesión",
+                onClick = { viewModel.onLoginClick() },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading
+            )
+
+            Spacer(modifier = Modifier.weight(0.15f))
+        }
+    }
+}
+
+/* FOR PREVIEW */
+@Composable
+fun LoginScreenPreviewContent() {
+    // Estados fake para simular el comportamiento
+    var email by remember { mutableStateOf("correo@ejemplo.com") }
+    var password by remember { mutableStateOf("123456") }
+    var errorMessage by remember { mutableStateOf("Error al iniciar sesión.\nUsuario o contraseña incorrectos.") }
+    val isLoading = false
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -58,7 +155,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.weight(0.20f))
+            Spacer(modifier = Modifier.weight(0.10f))
 
             Image(
                 painter = painterResource(id = R.drawable.logo),
@@ -68,38 +165,43 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(0.10f))
 
-            // Inputs con sus etiquetas pegadas
             Column(
                 verticalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("E-mail o nombre de usuario", style = MaterialTheme.typography.labelLarge)
+                    Text("E-mail",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
                     AltruistTextField(
                         value = email,
-                        onValueChange = viewModel::onEmailChange,
-                        placeholder = "E-mail o nombre de usuario"
+                        onValueChange = { email = it },
+                        placeholder = "E-mail"
                     )
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Contraseña", style = MaterialTheme.typography.labelLarge)
+                    Text("Contraseña",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
                     AltruistTextField(
                         value = password,
-                        onValueChange = viewModel::onPasswordChange,
+                        onValueChange = { password = it },
                         placeholder = "Contraseña",
                         visualTransformation = PasswordVisualTransformation()
                     )
                 }
             }
 
-            // Error message
-            if (!errorMessage.isNullOrBlank()) {
+            if (errorMessage.isNotBlank()) {
                 Text(
-                    text = errorMessage!!,
+                    text = errorMessage,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 12.dp)
+                    style = ErrorTextStyle,
+                    modifier = Modifier.padding(top = 35.dp)
                 )
             }
 
@@ -107,12 +209,12 @@ fun LoginScreen(
 
             PrimaryButton(
                 text = if (isLoading) "Cargando..." else "Iniciar Sesión",
-                onClick = { viewModel.onLoginClick() },
+                onClick = { /* No hace nada en preview */ },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             )
 
-            Spacer(modifier = Modifier.weight(0.2f))
+            Spacer(modifier = Modifier.weight(0.15f))
         }
     }
 }

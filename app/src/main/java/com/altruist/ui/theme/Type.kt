@@ -1,5 +1,6 @@
 package com.altruist.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import com.altruist.R
 
 import androidx.compose.material3.Typography
@@ -39,3 +40,9 @@ val Typography = Typography(
         fontWeight = FontWeight.Bold
     )
 )
+
+val ErrorTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 14.sp
+)
+
