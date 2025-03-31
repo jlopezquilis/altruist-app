@@ -1,13 +1,17 @@
 package com.altruist.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,96 +36,142 @@ fun LoginScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val user by viewModel.currentUser.collectAsState(initial = null)
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Mostrar mensaje si hay error
+    LaunchedEffect(errorMessage) {
+        if (!errorMessage.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(
+                message = errorMessage!!,
+                withDismissAction = true,
+                duration = SnackbarDuration.Long
+            )
+        }
+    }
+
     // Navegar si login fue exitoso
     LaunchedEffect(loginResult) {
         loginResult?.onSuccess {
-            //onLoginSuccess()
             viewModel.showError("Hola, ${it.name}")
         }?.onFailure {
-            viewModel.showError("Error al iniciar sesión. \n${it.message}")
+            viewModel.showError("Error al iniciar sesión.\n${it.message}")
         }
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to BackgroundTop,
-                        0.6f to BackgroundTop,
-                        1.0f to BackgroundBottom
-                    )
-                )
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = 32.dp),
+                snackbar = { snackbarData ->
+
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFFFFE0E0),
+                        border = BorderStroke(1.dp, Color.Red),
+                        shadowElevation = 4.dp, // tonalElevation no está en material3
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = snackbarData.visuals.message,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Start,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Red,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            TextButton(onClick = { snackbarData.dismiss() }) {
+                                Text("Cerrar", color = Color.DarkGray)
+                            }
+                        }
+                    }
+                }
             )
-    ) {
-        Column(
+        },
+        containerColor = Color.Transparent // para mantener el fondo degradado visible
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 40.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(innerPadding)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to BackgroundTop,
+                            0.6f to BackgroundTop,
+                            1.0f to BackgroundBottom
+                        )
+                    )
+                )
         ) {
-            Spacer(modifier = Modifier.weight(0.10f))
-
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Altruist",
-                modifier = Modifier.size(230.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(0.10f))
-
             Column(
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 40.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("E-mail",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                    AltruistTextField(
-                        value = email,
-                        onValueChange = viewModel::onEmailChange,
-                        placeholder = "E-mail"
-                    )
+                Spacer(modifier = Modifier.weight(0.10f))
+
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo Altruist",
+                    modifier = Modifier.size(230.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(0.05f))
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            "E-mail",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                        AltruistTextField(
+                            value = email,
+                            onValueChange = viewModel::onEmailChange,
+                            placeholder = "E-mail"
+                        )
+                    }
+
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(
+                            "Contraseña",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(start = 10.dp)
+                        )
+                        AltruistTextField(
+                            value = password,
+                            onValueChange = viewModel::onPasswordChange,
+                            placeholder = "Contraseña",
+                            visualTransformation = PasswordVisualTransformation()
+                        )
+                    }
                 }
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Contraseña",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                    AltruistTextField(
-                        value = password,
-                        onValueChange = viewModel::onPasswordChange,
-                        placeholder = "Contraseña",
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                }
+                Spacer(modifier = Modifier.weight(0.10f))
+
+                PrimaryButton(
+                    text = if (isLoading) "Cargando..." else "Iniciar Sesión",
+                    onClick = { viewModel.onLoginClick() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoading
+                )
+
+                Spacer(modifier = Modifier.weight(0.15f))
             }
-
-            // Error message
-
-            Text(
-                text = errorMessage?:"",
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.error,
-                style = ErrorTextStyle,
-                modifier = Modifier.padding(top = 35.dp)
-            )
-
-
-            Spacer(modifier = Modifier.weight(0.10f))
-
-            PrimaryButton(
-                text = if (isLoading) "Cargando..." else "Iniciar Sesión",
-                onClick = { viewModel.onLoginClick() },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
-            )
-
-            Spacer(modifier = Modifier.weight(0.15f))
         }
     }
 }
