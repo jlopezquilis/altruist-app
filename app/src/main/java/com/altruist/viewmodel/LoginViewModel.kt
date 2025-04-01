@@ -15,6 +15,9 @@ class LoginViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
 
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess
+
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
@@ -50,9 +53,15 @@ class LoginViewModel @Inject constructor(
         _errorMessage.value = null
 
         viewModelScope.launch {
-            val result = repository.login(_email.value, _password.value)
-            _loginResult.value = result
+            val loginResponseResult = repository.login(_email.value, _password.value)
             _isLoading.value = false
+            loginResponseResult.onSuccess {
+                _loginSuccess.value = true
+                showError("Hola, ${it.name}")
+            }.onFailure {
+                showError("Error al iniciar sesión.\n${it.message}")
+            }
+            _loginResult.value = loginResponseResult
         }
     }
 

@@ -67,7 +67,7 @@ fun AltruistApp() {
 
             composable(NavRoutes.Register1) {
                 RegisterScreen1(
-                    onContinue = {
+                    onRegister1Success = {
                         navController.navigate(NavRoutes.Register2)
                     }
                 )
@@ -75,7 +75,7 @@ fun AltruistApp() {
 
             composable(NavRoutes.Register2) {
                 RegisterScreen2(
-                    onContinue = {
+                    onRegister2Success = {
                         navController.navigate(NavRoutes.Register3)
                     }
                 )
@@ -83,8 +83,8 @@ fun AltruistApp() {
 
             composable(NavRoutes.Register3) {
                 RegisterScreen3(
-                    onCodeValidated = {
-                        navController.navigate(NavRoutes.Register2)
+                    onRegister3Success = {
+                        navController.navigate(NavRoutes.Welcome)
                     }
                 )
             }

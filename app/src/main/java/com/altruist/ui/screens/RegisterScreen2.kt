@@ -23,13 +23,13 @@ import com.altruist.viewmodel.RegisterViewModel
 @Composable
 fun RegisterScreen2(
     viewModel: RegisterViewModel = hiltViewModel(),
-    onContinue: () -> Unit
+    onRegister2Success: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val repeatPassword by viewModel.repeatPassword.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val codigoEnviadoOk by viewModel.codigoEnviadoConExito.collectAsState()
+    val register2Success by viewModel.register2Success.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -45,9 +45,9 @@ fun RegisterScreen2(
         }
     }
 
-    LaunchedEffect(codigoEnviadoOk) {
-        if (codigoEnviadoOk) {
-            onContinue()
+    LaunchedEffect(register2Success) {
+        if (register2Success) {
+            onRegister2Success()
             viewModel.resetCodigoEnviado() // para evitar navegación doble
         }
     }

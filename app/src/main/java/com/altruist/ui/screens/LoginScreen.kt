@@ -33,7 +33,7 @@ fun LoginScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val loginResult by viewModel.loginResult.collectAsState()
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val user by viewModel.currentUser.collectAsState(initial = null)
 
@@ -51,11 +51,9 @@ fun LoginScreen(
     }
 
     // Navegar si login fue exitoso
-    LaunchedEffect(loginResult) {
-        loginResult?.onSuccess {
-            viewModel.showError("Hola, ${it.name}")
-        }?.onFailure {
-            viewModel.showError("Error al iniciar sesión.\n${it.message}")
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess){
+            //Paso a siguiente Screen. El objeto User ya se ha creado en repository
         }
     }
 

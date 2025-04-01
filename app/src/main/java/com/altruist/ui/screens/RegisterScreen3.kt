@@ -35,11 +35,13 @@ import com.altruist.viewmodel.RegisterViewModel
 @Composable
 fun RegisterScreen3(
     viewModel: RegisterViewModel = hiltViewModel(),
-    onCodeValidated: () -> Unit
+    onRegister3Success: () -> Unit
 ) {
     val verificationCode by viewModel.verificationCode.collectAsState()
     val inputCode by viewModel.inputCode.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val register3Success by viewModel.register3Success.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -51,6 +53,12 @@ fun RegisterScreen3(
                 withDismissAction = true,
                 duration = SnackbarDuration.Long
             )
+        }
+    }
+
+    LaunchedEffect(register3Success) {
+        if (register3Success){
+            onRegister3Success()
         }
     }
 
@@ -119,13 +127,7 @@ fun RegisterScreen3(
 
                 SecondaryButton(
                     text = "Continuar",
-                    onClick = {
-                        if (inputCode == verificationCode) {
-                            onCodeValidated()
-                        } else {
-                            viewModel.showError("El código no es correcto.")
-                        }
-                    },
+                    onClick = {viewModel.onContinueFromRegister3Click()},
                     modifier = Modifier.fillMaxWidth(),
                     enabled = inputCode.length == 6
                 )

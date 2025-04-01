@@ -61,7 +61,7 @@ class AuthRepository @Inject constructor(
                 Result.failure(Exception("Error al enviar código: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Error de red: ${e.message}"))
         }
     }
 

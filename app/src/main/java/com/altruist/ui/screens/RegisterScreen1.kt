@@ -33,8 +33,10 @@ import com.altruist.viewmodel.RegisterViewModel
 @Composable
 fun RegisterScreen1(
     viewModel: RegisterViewModel = hiltViewModel(),
-    onContinue: () -> Unit
+    onRegister1Success: () -> Unit
 ) {
+    val register1Success by viewModel.register1Success.collectAsState()
+
     val nombre by viewModel.nombre.collectAsState()
     val apellidos by viewModel.apellidos.collectAsState()
     val username by viewModel.username.collectAsState()
@@ -53,6 +55,12 @@ fun RegisterScreen1(
                 withDismissAction = true,
                 duration = SnackbarDuration.Long
             )
+        }
+    }
+
+    LaunchedEffect(register1Success) {
+        if (register1Success) {
+            onRegister1Success()
         }
     }
 
@@ -186,22 +194,7 @@ fun RegisterScreen1(
 
                 SecondaryButton(
                     text = "Continuar",
-                    onClick = {
-                        when {
-                            viewModel.nombre.value.isBlank() ||
-                                    viewModel.apellidos.value.isBlank() ||
-                                    viewModel.username.value.isBlank() ||
-                                    viewModel.genero.value.isBlank() -> {
-                                viewModel.showError("Por favor, completa todos los campos.")
-                            }
-
-                            !viewModel.isUsernameValid() -> {
-                                viewModel.showError("El nombre de usuario debe:\n- Tener al menos 4 caracteres\n- Empezar por letra\n- Solo usar letras, números, puntos o guiones bajos")
-                            }
-
-                            else -> onContinue()
-                        }
-                    },
+                    onClick = {viewModel.onContinueFromRegister1Click()},
                     modifier = Modifier.fillMaxWidth(),
                     enabled = viewModel.isDataValid()
                 )

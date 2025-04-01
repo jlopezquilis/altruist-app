@@ -1,7 +1,10 @@
 package com.altruist.viewmodel
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.network.dto.user.LoginResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.altruist.data.repository.AuthRepository
 import kotlinx.coroutines.flow.*
@@ -13,6 +16,15 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val repository: AuthRepository
 ) : ViewModel() {
+
+    private val _register1Success = MutableStateFlow(false)
+    val register1Success: StateFlow<Boolean> = _register1Success
+
+    private val _register2Success = MutableStateFlow(false)
+    val register2Success: StateFlow<Boolean> = _register2Success
+
+    private val _register3Success = MutableStateFlow(false)
+    val register3Success: StateFlow<Boolean> = _register3Success
 
     private val _nombre = MutableStateFlow("")
     val nombre: StateFlow<String> = _nombre
@@ -48,9 +60,6 @@ class RegisterViewModel @Inject constructor(
 
     private val _inputCode = MutableStateFlow("")
     val inputCode: StateFlow<String> = _inputCode
-
-    private val _codigoEnviadoConExito = MutableStateFlow(false)
-    val codigoEnviadoConExito: StateFlow<Boolean> = _codigoEnviadoConExito
 
     fun onNombreChange(value: String) {
         _nombre.value = value
@@ -103,26 +112,20 @@ class RegisterViewModel @Inject constructor(
         return android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()
     }
 
-    fun generarYEnviarCodigo(email: String) {
-        val code = (100000..999999).random().toString()
-        _verificationCode.value = code
-
-        _isLoading.value = true
-        viewModelScope.launch {
-            val result = repository.sendVerificationCode(email, code)
-            result.onSuccess {
-                _isLoading.value = false
-                _codigoEnviadoConExito.value = true
-            }.onFailure {
-                _isLoading.value = false
-                showError("Error al enviar el correo: ${it.message}")
+    fun onContinueFromRegister1Click() {
+        when {
+            _nombre.value.isBlank() ||
+                    _apellidos.value.isBlank() ||
+                    _username.value.isBlank() ||
+                    _genero.value.isBlank() -> {
+                showError("Por favor, completa todos los campos.")
             }
-        }
-    }
 
-    //Necesario para proteger si el usuario vuelve a la Screen anterior
-    fun resetCodigoEnviado() {
-        _codigoEnviadoConExito.value = false
+            !isUsernameValid() -> {
+                showError("El nombre de usuario debe:\n- Tener al menos 4 caracteres\n- Empezar por letra\n- Solo usar letras, números, puntos o guiones bajos")
+            }
+            else -> _register1Success.value = true
+        }
     }
 
     fun onContinueFromRegister2Click() {
@@ -147,6 +150,35 @@ class RegisterViewModel @Inject constructor(
                 generarYEnviarCodigo(_email.value)
             }
         }
+    }
+
+    fun onContinueFromRegister3Click() {
+        if (_inputCode.value == _verificationCode.value) {
+            _register3Success.value = true
+        } else {
+            showError("El código no es correcto.")
+        }
+    }
+
+    fun generarYEnviarCodigo(email: String) {
+        val code = (100000..999999).random().toString()
+        _verificationCode.value = code
+
+        _isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.sendVerificationCode(email, code)
+            _isLoading.value = false
+            result.onSuccess {
+                _register2Success.value = true
+            }.onFailure {
+                showError("Error al enviar el correo: ${it.message}")
+            }
+        }
+    }
+
+    //Necesario para proteger si el usuario vuelve a la Screen anterior
+    fun resetCodigoEnviado() {
+        _register2Success.value = false
     }
 
 
