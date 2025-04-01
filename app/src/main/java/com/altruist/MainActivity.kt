@@ -1,19 +1,24 @@
 package com.altruist
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.ui.screens.WelcomeScreen
 import com.altruist.ui.theme.AltruistTheme
 
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.altruist.ui.screens.LoginScreen
-import com.altruist.ui.screens.RegisterScreen1
-import com.altruist.ui.screens.RegisterScreen2
-import com.altruist.ui.screens.RegisterScreen3
+import com.altruist.ui.screens.register.RegisterScreen1
+import com.altruist.ui.screens.register.RegisterScreen2
+import com.altruist.ui.screens.register.RegisterScreen3
+import com.altruist.viewmodel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,6 +34,8 @@ class MainActivity : ComponentActivity() {
 object NavRoutes {
     const val Welcome = "welcome"
     const val Login = "login"
+
+    const val RegisterGraph = "register"
     const val Register1 = "register1"
     const val Register2 = "register2"
     const val Register3 = "register3"
@@ -50,7 +57,7 @@ fun AltruistApp() {
                         navController.navigate(NavRoutes.Login)
                     },
                     onRegisterClick = {
-                        navController.navigate(NavRoutes.Register1)
+                        navController.navigate(NavRoutes.RegisterGraph)
                     }
                 )
             }
@@ -65,31 +72,48 @@ fun AltruistApp() {
                 )
             }
 
-            composable(NavRoutes.Register1) {
-                RegisterScreen1(
-                    onRegister1Success = {
-                        navController.navigate(NavRoutes.Register2)
+            navigation(
+                startDestination = NavRoutes.Register1,
+                route = NavRoutes.RegisterGraph
+            ) {
+                composable(NavRoutes.Register1) { backStackEntry ->
+                    val viewModel: RegisterViewModel = hiltViewModel(backStackEntry)
+                    RegisterScreen1(
+                        viewModel = viewModel,
+                        onRegister1Success = {
+                            navController.navigate(NavRoutes.Register2)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.Register2) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.RegisterGraph)
                     }
-                )
-            }
+                    val viewModel: RegisterViewModel = hiltViewModel(parentEntry)
 
-            composable(NavRoutes.Register2) {
-                RegisterScreen2(
-                    onRegister2Success = {
-                        navController.navigate(NavRoutes.Register3)
+                    RegisterScreen2(
+                        viewModel = viewModel,
+                        onRegister2Success = {
+                            navController.navigate(NavRoutes.Register3)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.Register3) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.RegisterGraph)
                     }
-                )
+                    val viewModel: RegisterViewModel = hiltViewModel(parentEntry)
+
+                    RegisterScreen3(
+                        viewModel = viewModel,
+                        onRegister3Success = {
+                            navController.navigate(NavRoutes.Welcome)
+                        }
+                    )
+                }
             }
-
-            composable(NavRoutes.Register3) {
-                RegisterScreen3(
-                    onRegister3Success = {
-                        navController.navigate(NavRoutes.Welcome)
-                    }
-                )
-            }
-
-
         }
     }
 }

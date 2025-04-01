@@ -1,6 +1,5 @@
-package com.altruist.ui.screens
+package com.altruist.ui.screens.register
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,9 +14,6 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
@@ -25,7 +21,6 @@ import com.altruist.ui.components.AltruistLabeledTextField
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
-import com.altruist.ui.components.PrimaryButton
 import com.altruist.ui.components.SecondaryButton
 import com.altruist.viewmodel.RegisterViewModel
 

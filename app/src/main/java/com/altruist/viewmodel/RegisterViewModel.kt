@@ -101,6 +101,16 @@ class RegisterViewModel @Inject constructor(
         return usernameRegex.matches(_username.value)
     }
 
+    fun isUsernameAvailable(): Boolean {
+        val userExistent = repository.isUsernameAvailable(_username.value)
+        if (userExistent) {
+            showError("El nombre de usuario ya está en uso.")
+            return false
+        } else {
+            return true
+        }
+    }
+
     fun isDataValid(): Boolean {
         return _nombre.value.isNotBlank() &&
                 _apellidos.value.isNotBlank() &&

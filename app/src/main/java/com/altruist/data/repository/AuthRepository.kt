@@ -66,5 +66,18 @@ class AuthRepository @Inject constructor(
     }
 
     fun getLoggedInUser(): Flow<User?> = userSession.getUser()
+
+    suspend fun isUsernameAvailable(value: String): Boolean {
+        return try {
+            val response = api.find(SendVerificationCodeRequest(email, code))
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al enviar código: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de red: ${e.message}"))
+        }
+    }
 }
 

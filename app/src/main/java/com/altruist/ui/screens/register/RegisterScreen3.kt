@@ -1,4 +1,4 @@
-package com.altruist.ui.screens
+package com.altruist.ui.screens.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -9,28 +9,28 @@ import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
-import com.altruist.ui.components.AltruistLabeledTextField
+import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.TitleMediumTextStyle
 import com.altruist.viewmodel.RegisterViewModel
 
 @Composable
-fun RegisterScreen2(
+fun RegisterScreen3(
     viewModel: RegisterViewModel = hiltViewModel(),
-    onRegister2Success: () -> Unit
+    onRegister3Success: () -> Unit
 ) {
-    val email by viewModel.email.collectAsState()
-    val password by viewModel.password.collectAsState()
-    val repeatPassword by viewModel.repeatPassword.collectAsState()
+    val verificationCode by viewModel.verificationCode.collectAsState()
+    val inputCode by viewModel.inputCode.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val register2Success by viewModel.register2Success.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+
+    val register3Success by viewModel.register3Success.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -45,10 +45,9 @@ fun RegisterScreen2(
         }
     }
 
-    LaunchedEffect(register2Success) {
-        if (register2Success) {
-            onRegister2Success()
-            viewModel.resetCodigoEnviado() // para evitar navegación doble
+    LaunchedEffect(register3Success) {
+        if (register3Success){
+            onRegister3Success()
         }
     }
 
@@ -93,40 +92,33 @@ fun RegisterScreen2(
                 Spacer(modifier = Modifier.weight(0.05f))
 
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .padding(horizontal = 40.dp),
+                    verticalArrangement = Arrangement.spacedBy(60.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    AltruistLabeledTextField(
-                        label = "E-mail",
-                        value = email,
-                        onValueChange = viewModel::onEmailChange,
-                        placeholder = "E-mail"
+                    Text(
+                        text = "Por favor, introduce el código que hemos enviado a tu correo",
+                        style = TitleMediumTextStyle,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
 
-                    AltruistLabeledTextField(
-                        label = "Contraseña",
-                        value = password,
-                        onValueChange = viewModel::onPasswordChange,
-                        placeholder = "Contraseña",
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-
-                    AltruistLabeledTextField(
-                        label = "Repita su contraseña",
-                        value = repeatPassword,
-                        onValueChange = viewModel::onRepeatPasswordChange,
-                        placeholder = "Repita su contraseña",
-                        visualTransformation = PasswordVisualTransformation()
+                    AltruistTextField(
+                        value = inputCode,
+                        onValueChange = viewModel::onInputCodeChange,
+                        placeholder = "Código de verificación",
+                        textAlign = TextAlign.Center
                     )
                 }
 
                 Spacer(modifier = Modifier.weight(0.15f))
 
                 SecondaryButton(
-                    text = if (isLoading) "Cargando..." else "Continuar",
-                    onClick = {viewModel.onContinueFromRegister2Click()},
+                    text = "Continuar",
+                    onClick = {viewModel.onContinueFromRegister3Click()},
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !isLoading
+                    enabled = inputCode.length == 6
                 )
 
                 Spacer(modifier = Modifier.weight(0.15f))
