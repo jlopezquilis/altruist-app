@@ -1,13 +1,14 @@
 package com.altruist.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun AltruistTextField(
@@ -16,12 +17,23 @@ fun AltruistTextField(
     placeholder: String,
     modifier: Modifier = Modifier,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    textAlign: TextAlign = TextAlign.Start
 ) {
     TextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder) },
+        placeholder = {
+            Text(
+                text = placeholder,
+                color = Color.Gray.copy(alpha = 0.5f),
+                textAlign = textAlign,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        textStyle = LocalTextStyle.current.copy(
+            textAlign = textAlign
+        ),
         shape = MaterialTheme.shapes.medium,
         singleLine = singleLine,
         visualTransformation = visualTransformation,

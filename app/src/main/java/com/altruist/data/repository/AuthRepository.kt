@@ -3,8 +3,9 @@ package com.altruist.data.repository
 import com.altruist.data.datastore.UserSession
 import com.altruist.data.model.User
 import com.altruist.data.network.ApiService
-import com.altruist.data.network.dto.auth.LoginRequest
-import com.altruist.data.network.dto.auth.LoginResponse
+import com.altruist.data.network.dto.user.LoginRequest
+import com.altruist.data.network.dto.user.LoginResponse
+import com.altruist.data.network.dto.user.SendVerificationCodeRequest
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import javax.inject.Inject
@@ -48,6 +49,19 @@ class AuthRepository @Inject constructor(
             }
         } catch (e: Exception) {
             Result.failure(Exception("Error de red: ${e.message}"))
+        }
+    }
+
+    suspend fun sendVerificationCode(email: String, code: String): Result<Unit> {
+        return try {
+            val response = api.sendVerificationCode(SendVerificationCodeRequest(email, code))
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al enviar código: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

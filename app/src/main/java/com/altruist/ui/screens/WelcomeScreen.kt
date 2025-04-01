@@ -15,54 +15,61 @@ import com.altruist.ui.components.SecondaryButton
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import androidx.compose.runtime.SideEffect
+import com.altruist.utils.AltruistScreenWrapper
+
+
 @Composable
 fun WelcomeScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to BackgroundTop,
-                        0.4f to BackgroundTop,
-                        1.0f to BackgroundBottom
-                    )
-                )
-            )
-    ) {
-        Column(
+    AltruistScreenWrapper {
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 40.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to BackgroundTop,
+                            0.4f to BackgroundTop,
+                            1.0f to BackgroundBottom
+                        )
+                    )
+                )
         ) {
-            Spacer(modifier = Modifier.weight(0.2f)) // 20% de alto
-
-            // Logo
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Altruist",
-                modifier = Modifier.size(230.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(0.45f)) // Espacio entre logo y botones
-
-            // Botones
             Column(
-                verticalArrangement = Arrangement.spacedBy(35.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .padding(horizontal = 40.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PrimaryButton(text = "Iniciar Sesión", onClick = onLoginClick)
-                SecondaryButton(text = "Registrarse", onClick = onRegisterClick)
-            }
+                Spacer(modifier = Modifier.weight(0.2f)) // 20% de alto
 
-            Spacer(modifier = Modifier.weight(0.35f)) // 35% desde bottom
+                // Logo
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo Altruist",
+                    modifier = Modifier.size(230.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(0.45f)) // Espacio entre logo y botones
+
+                // Botones
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(35.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    PrimaryButton(text = "Iniciar Sesión", onClick = onLoginClick)
+                    SecondaryButton(text = "Registrarse", onClick = onRegisterClick)
+                }
+
+                Spacer(modifier = Modifier.weight(0.35f)) // 35% desde bottom
+            }
         }
     }
 }

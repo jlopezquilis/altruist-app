@@ -46,3 +46,9 @@ val ErrorTextStyle = TextStyle(
     fontSize = 14.sp
 )
 
+val TitleMediumTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 18.sp,
+    fontWeight = FontWeight.Bold
+)
+

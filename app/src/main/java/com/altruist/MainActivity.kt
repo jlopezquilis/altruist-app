@@ -11,6 +11,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.altruist.ui.screens.LoginScreen
+import com.altruist.ui.screens.RegisterScreen1
+import com.altruist.ui.screens.RegisterScreen2
+import com.altruist.ui.screens.RegisterScreen3
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,6 +29,9 @@ class MainActivity : ComponentActivity() {
 object NavRoutes {
     const val Welcome = "welcome"
     const val Login = "login"
+    const val Register1 = "register1"
+    const val Register2 = "register2"
+    const val Register3 = "register3"
 }
 
 
@@ -44,7 +50,7 @@ fun AltruistApp() {
                         navController.navigate(NavRoutes.Login)
                     },
                     onRegisterClick = {
-                        // Puedes añadir aquí navegación al registro
+                        navController.navigate(NavRoutes.Register1)
                     }
                 )
             }
@@ -56,6 +62,30 @@ fun AltruistApp() {
                         println("Login correcto")
                     }
                      */
+                )
+            }
+
+            composable(NavRoutes.Register1) {
+                RegisterScreen1(
+                    onContinue = {
+                        navController.navigate(NavRoutes.Register2)
+                    }
+                )
+            }
+
+            composable(NavRoutes.Register2) {
+                RegisterScreen2(
+                    onContinue = {
+                        navController.navigate(NavRoutes.Register3)
+                    }
+                )
+            }
+
+            composable(NavRoutes.Register3) {
+                RegisterScreen3(
+                    onCodeValidated = {
+                        navController.navigate(NavRoutes.Register2)
+                    }
                 )
             }
 

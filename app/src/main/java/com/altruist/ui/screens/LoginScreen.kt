@@ -21,6 +21,7 @@ import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.PrimaryButton
 import com.altruist.ui.theme.ErrorTextStyle
 import com.altruist.viewmodel.LoginViewModel
@@ -60,43 +61,12 @@ fun LoginScreen(
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.padding(bottom = 32.dp),
-                snackbar = { snackbarData ->
-
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = Color(0xFFFFE0E0),
-                        border = BorderStroke(1.dp, Color.Red),
-                        shadowElevation = 4.dp, // tonalElevation no está en material3
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = snackbarData.visuals.message,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Start,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Red,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            TextButton(onClick = { snackbarData.dismiss() }) {
-                                Text("Cerrar", color = Color.DarkGray)
-                            }
-                        }
-                    }
-                }
+            AltruistSnackbarHost(
+                snackbarHostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = 32.dp)
             )
         },
-        containerColor = Color.Transparent // para mantener el fondo degradado visible
+        containerColor = Color.Transparent
     ) { innerPadding ->
         Box(
             modifier = Modifier

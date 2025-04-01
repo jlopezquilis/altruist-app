@@ -2,8 +2,8 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.altruist.data.network.dto.auth.LoginRequest
-import com.altruist.data.network.dto.auth.LoginResponse
+import com.altruist.data.network.dto.user.LoginRequest
+import com.altruist.data.network.dto.user.LoginResponse
 import com.altruist.data.network.RetrofitInstance
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

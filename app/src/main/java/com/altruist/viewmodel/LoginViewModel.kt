@@ -3,15 +3,11 @@ package com.altruist.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.data.model.User
-import com.altruist.data.network.dto.auth.LoginRequest
-import com.altruist.data.network.dto.auth.LoginResponse
-import com.altruist.data.network.RetrofitInstance
+import com.altruist.data.network.dto.user.LoginResponse
 import com.altruist.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
