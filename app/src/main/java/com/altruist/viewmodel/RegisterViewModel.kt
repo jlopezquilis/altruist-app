@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.R
+import com.altruist.data.model.User
+import com.altruist.data.network.dto.user.CreateUserRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.altruist.data.repository.AuthRepository
 import com.google.firebase.storage.FirebaseStorage
@@ -61,8 +64,8 @@ class RegisterViewModel @Inject constructor(
     private val _anonymous = MutableStateFlow(false)
     val anonymous: StateFlow<Boolean> = _anonymous
 
-    private val _profilePictureUrl = MutableStateFlow<Uri?>(null)
-    val profilePictureUrl: StateFlow<Uri?> = _profilePictureUrl
+    private val _profilePictureUri = MutableStateFlow<Uri?>(null)
+    val profilePictureUri: StateFlow<Uri?> = _profilePictureUri
 
     private val _profilePictureUrlString = MutableStateFlow("")
     val profilePictureUrlString: StateFlow<String> = _profilePictureUrlString
@@ -139,8 +142,8 @@ class RegisterViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun setProfilePictureUrl(uri: Uri?) {
-        _profilePictureUrl.value = uri
+    fun onProfilePictureUriChange(uri: Uri?) {
+        _profilePictureUri.value = uri
     }
 
 
@@ -227,56 +230,6 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    fun onContinueFromRegister3Click() {
-        if (_inputCode.value == _verificationCode.value) {
-            _register3Success.value = true
-        } else {
-            showError("El código no es correcto.")
-        }
-    }
-
-    fun onContinueFromRegister4Click() {
-        _register4Success.value = true
-    }
-
-    fun uploadProfileImage(
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
-    ) {
-        val uri = _profilePictureUrl.value ?: return onError("No has seleccionado ninguna imagen")
-
-        val storageRef = FirebaseStorage.getInstance().reference
-        val fileRef = storageRef.child("profile_pictures/${UUID.randomUUID()}.jpg")
-
-        fileRef.putFile(uri)
-            .addOnSuccessListener {
-                fileRef.downloadUrl
-                    .addOnSuccessListener { downloadUri ->
-                        val imageUrl = downloadUri
-                        _profilePictureUrl.value = imageUrl
-                        onSuccess()
-                    }
-                    .addOnFailureListener {
-                        onError("No se pudo obtener la URL")
-                    }
-            }
-            .addOnFailureListener {
-                onError("Error al subir imagen: ${it.message}")
-            }
-    }
-
-    fun onContinueFromRegister5Click() {
-        uploadProfileImage(
-            onSuccess = {
-                _profilePictureUrlString.value = _profilePictureUrl.value.toString()
-            },
-            onError = { error ->
-                showError(error)
-            }
-        )
-        _register5Success.value = true
-    }
-
     fun generarYEnviarCodigo(email: String) {
         val code = (100000..999999).random().toString()
         _verificationCode.value = code
@@ -293,10 +246,102 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    //Necesario para proteger si el usuario vuelve a la Screen anterior
-    fun resetCodigoEnviado() {
-        _register2Success.value = false
+    fun onContinueFromRegister3Click() {
+        _isLoading.value = true
+        if (_inputCode.value == _verificationCode.value) {
+            _register3Success.value = true
+        } else {
+            showError("El código no es correcto.")
+        }
+        _isLoading.value = false
     }
+
+    fun onContinueFromRegister4Click() {
+        _register4Success.value = true
+    }
+
+    fun uploadProfileImage(
+        context: Context,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val uri = _profilePictureUri.value ?: getDefaultProfileUri(context) // 👈 Aquí el cambio clave
+
+        val storageRef = FirebaseStorage.getInstance().reference
+        val fileRef = storageRef.child("profile_pictures/${UUID.randomUUID()}.jpg")
+
+        fileRef.putFile(uri)
+            .addOnSuccessListener {
+                fileRef.downloadUrl
+                    .addOnSuccessListener { downloadUri ->
+                        val imageUrl = downloadUri
+                        _profilePictureUri.value = imageUrl
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        onError("No se pudo obtener la URL")
+                    }
+            }
+            .addOnFailureListener {
+                onError("Error al subir imagen: ${it.message}")
+            }
+    }
+
+    fun getDefaultProfileUri(context: Context): Uri {
+        return Uri.parse("android.resource://${context.packageName}/${R.drawable.profile_pic}")
+    }
+
+    fun onContinueFromRegister5Click(context: Context) {
+        _isLoading.value = true
+        uploadProfileImage(
+            context = context,
+            onSuccess = {
+                _profilePictureUrlString.value = _profilePictureUri.value.toString()
+            },
+            onError = { error ->
+                showError(error)
+            }
+        )
+        registerUser(
+            onSuccess = {
+            },
+            onError = { error ->
+                showError(error)
+            }
+        )
+        _isLoading.value = false
+        _register5Success.value = true
+    }
+
+    fun registerUser(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val user = CreateUserRequest(
+            name = _name.value,
+            surname = _surname.value,
+            username = _username.value,
+            gender = _gender.value,
+            email = _email.value,
+            password_hash = _password.value,
+            situation = _situation.value,
+            profile_picture_url = _profilePictureUrlString.value,
+            anonymous = _anonymous.value
+        )
+
+        viewModelScope.launch {
+            val result = repository.createUser(user)
+            result.onSuccess {
+                onSuccess()
+            }.onFailure {
+                onError("Error al registrar usuario: ${it.message}")
+            }
+        }
+    }
+
+
+    //Necesario para proteger si el usuario vuelve a la Screen anterior
+
     fun resetRegister1Success() {
         _register1Success.value = false
     }
@@ -308,5 +353,8 @@ class RegisterViewModel @Inject constructor(
     }
     fun resetRegister4Success() {
         _register4Success.value = false
+    }
+    fun resetRegister5Success() {
+        _register5Success.value = false
     }
 }

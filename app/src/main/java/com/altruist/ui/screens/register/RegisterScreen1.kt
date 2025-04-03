@@ -38,7 +38,7 @@ fun RegisterScreen1(
     val username by viewModel.username.collectAsState()
     val genero by viewModel.gender.collectAsState()
 
-    val generoOpciones = listOf("Masculino", "Femenino", "Otro")
+    val generoOpciones = listOf("Masculino", "Femenino", "No binario", "Otro", "Prefiero no decirlo")
 
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()

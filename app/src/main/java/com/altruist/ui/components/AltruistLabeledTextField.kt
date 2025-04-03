@@ -1,9 +1,11 @@
 package com.altruist.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
@@ -30,7 +32,8 @@ fun AltruistLabeledTextField(
             value = value,
             onValueChange = onValueChange,
             placeholder = placeholder,
-            visualTransformation = visualTransformation
+            visualTransformation = visualTransformation,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
     }
 }

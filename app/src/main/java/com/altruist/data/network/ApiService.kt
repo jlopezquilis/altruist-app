@@ -1,6 +1,8 @@
 package com.altruist.data.network
 
+import com.altruist.data.model.User
 import com.altruist.data.network.dto.user.AvailabilityResponse
+import com.altruist.data.network.dto.user.CreateUserRequest
 import com.altruist.data.network.dto.user.SendVerificationCodeRequest
 import com.altruist.data.network.dto.user.LoginRequest
 import com.altruist.data.network.dto.user.LoginResponse
@@ -29,4 +31,6 @@ interface ApiService {
     @GET("api/users/check-username")
     suspend fun checkUsernameExists(@Query("username") username: String): Response<AvailabilityResponse>
 
+    @POST("api/users/create")
+    suspend fun createUser(@Body user: CreateUserRequest): Response<CreateUserRequest>
 }

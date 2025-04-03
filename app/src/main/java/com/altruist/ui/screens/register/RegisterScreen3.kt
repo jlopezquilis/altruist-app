@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
 import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.AltruistSnackbarHost
+import com.altruist.ui.components.BasicButton
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
@@ -26,9 +27,10 @@ fun RegisterScreen3(
     viewModel: RegisterViewModel,
     onRegister3Success: () -> Unit
 ) {
-    val verificationCode by viewModel.verificationCode.collectAsState()
+    val email by viewModel.email.collectAsState()
     val inputCode by viewModel.inputCode.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     val register3Success by viewModel.register3Success.collectAsState()
 
@@ -112,12 +114,29 @@ fun RegisterScreen3(
                         placeholder = "Código de verificación",
                         textAlign = TextAlign.Center
                     )
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "¿No te ha llegado?\nEcha un vistazo en spam o prueba a reenviarlo",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+
+                        BasicButton(
+                            text = "Reenviar Código",
+                            onClick = {viewModel.generarYEnviarCodigo(email)}
+                        )
+                    }
+
                 }
 
                 Spacer(modifier = Modifier.weight(0.15f))
 
                 SecondaryButton(
-                    text = "Continuar",
+                    text = if (isLoading) "Cargando..." else "Continuar",
                     onClick = {viewModel.onContinueFromRegister3Click()},
                     modifier = Modifier.fillMaxWidth(),
                     enabled = inputCode.length == 6

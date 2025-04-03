@@ -17,6 +17,7 @@ fun AltruistTextField(
     placeholder: String,
     modifier: Modifier = Modifier,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true,
     textAlign: TextAlign = TextAlign.Start
 ) {
@@ -37,6 +38,7 @@ fun AltruistTextField(
         shape = MaterialTheme.shapes.medium,
         singleLine = singleLine,
         visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
             focusedContainerColor = Color.White,
             unfocusedContainerColor = Color.White,
