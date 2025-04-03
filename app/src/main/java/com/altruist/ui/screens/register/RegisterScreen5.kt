@@ -3,38 +3,50 @@ package com.altruist.ui.screens.register
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
-import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.AltruistSnackbarHost
-import com.altruist.ui.theme.BackgroundTop
-import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.BackgroundBottom
+import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.TitleMediumTextStyle
 import com.altruist.viewmodel.RegisterViewModel
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.net.Uri
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
+
+
 @Composable
-fun RegisterScreen3(
+fun RegisterScreen5(
     viewModel: RegisterViewModel,
-    onRegister3Success: () -> Unit
+    onRegister5Success: () -> Unit
 ) {
-    val verificationCode by viewModel.verificationCode.collectAsState()
-    val inputCode by viewModel.inputCode.collectAsState()
+    val selectedImageUri by viewModel.profilePictureUrl.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-
-    val register3Success by viewModel.register3Success.collectAsState()
-
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Mostrar mensaje si hay error
+    val context = LocalContext.current
+    val imageUri by viewModel.profilePictureUrl.collectAsState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        viewModel.setProfilePictureUrl(uri)
+    }
+
+    // Mostrar snackbar si hay error
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
             snackbarHostState.showSnackbar(
@@ -42,14 +54,6 @@ fun RegisterScreen3(
                 withDismissAction = true,
                 duration = SnackbarDuration.Long
             )
-        }
-    }
-
-    if (register3Success) {
-        LaunchedEffect(Unit) {
-            viewModel.resetRegister3Success()
-            viewModel.clearError()
-            onRegister3Success()
         }
     }
 
@@ -91,36 +95,50 @@ fun RegisterScreen3(
                     modifier = Modifier.size(230.dp)
                 )
 
-                Spacer(modifier = Modifier.weight(0.05f))
-
                 Column(
-                    modifier = Modifier
-                        .padding(horizontal = 40.dp),
-                    verticalArrangement = Arrangement.spacedBy(60.dp),
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Por favor, introduce el código que hemos enviado a tu correo",
+                        text = "Sube una imagen para tu foto de perfil",
                         style = TitleMediumTextStyle,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-
-                    AltruistTextField(
-                        value = inputCode,
-                        onValueChange = viewModel::onInputCodeChange,
-                        placeholder = "Código de verificación",
                         textAlign = TextAlign.Center
                     )
+
+                    if (imageUri != null) {
+                        AsyncImage(
+                            model = imageUri,
+                            contentDescription = "Imagen seleccionada",
+                            modifier = Modifier
+                                .size(180.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(180.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.LightGray)
+                        )
+                    }
+
+                    Button(
+                        onClick = { launcher.launch("image/*") },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    ) {
+                        Text("Cambiar", color = Color.Black)
+                    }
+
                 }
 
-                Spacer(modifier = Modifier.weight(0.15f))
+                Spacer(modifier = Modifier.weight(0.1f))
 
                 SecondaryButton(
                     text = "Continuar",
-                    onClick = {viewModel.onContinueFromRegister3Click()},
+                    onClick = {viewModel.onContinueFromRegister5Click()},
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = inputCode.length == 6
+                    enabled = true
                 )
 
                 Spacer(modifier = Modifier.weight(0.15f))

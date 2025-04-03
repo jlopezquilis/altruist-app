@@ -13,28 +13,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
-import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.AltruistSnackbarHost
-import com.altruist.ui.theme.BackgroundTop
-import com.altruist.ui.theme.BackgroundBottom
+import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.BackgroundBottom
+import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.TitleMediumTextStyle
 import com.altruist.viewmodel.RegisterViewModel
 
 @Composable
-fun RegisterScreen3(
+fun RegisterScreen4(
     viewModel: RegisterViewModel,
-    onRegister3Success: () -> Unit
+    onRegister4Success: () -> Unit
 ) {
-    val verificationCode by viewModel.verificationCode.collectAsState()
-    val inputCode by viewModel.inputCode.collectAsState()
+    val name by viewModel.name.collectAsState()
+    val situation by viewModel.situation.collectAsState()
+    val anonymous by viewModel.anonymous.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-
-    val register3Success by viewModel.register3Success.collectAsState()
-
+    val register4Success by viewModel.register4Success.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Mostrar mensaje si hay error
+    // Mostrar error si hay
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
             snackbarHostState.showSnackbar(
@@ -45,12 +44,16 @@ fun RegisterScreen3(
         }
     }
 
-    if (register3Success) {
+    if (register4Success) {
         LaunchedEffect(Unit) {
-            viewModel.resetRegister3Success()
+            viewModel.resetRegister4Success()
             viewModel.clearError()
-            onRegister3Success()
+            onRegister4Success()
         }
+    }
+
+    LaunchedEffect(name) {
+        println("✅ Nombre recibido en RegisterScreen4: $name")
     }
 
     Scaffold(
@@ -91,36 +94,60 @@ fun RegisterScreen3(
                     modifier = Modifier.size(230.dp)
                 )
 
-                Spacer(modifier = Modifier.weight(0.05f))
-
                 Column(
-                    modifier = Modifier
-                        .padding(horizontal = 40.dp),
-                    verticalArrangement = Arrangement.spacedBy(60.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(36.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Por favor, introduce el código que hemos enviado a tu correo",
-                        style = TitleMediumTextStyle,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        text = "¡Hola, ${name}!",
+                        style = TitleMediumTextStyle)
+                    Text(
+                        text = "Describe tu situación o la intención con la que vas a utilizar la aplicación para que otros usuarios te conozcan un poco más.",
+                        textAlign = TextAlign.Center
                     )
 
                     AltruistTextField(
-                        value = inputCode,
-                        onValueChange = viewModel::onInputCodeChange,
-                        placeholder = "Código de verificación",
-                        textAlign = TextAlign.Center
+                        value = situation,
+                        onValueChange = viewModel::onSituationChange,
+                        placeholder = "Opcional",
+                        textAlign = TextAlign.Center,
+                        singleLine = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
                     )
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "¿Quieres que tu perfil sea anónimo?")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = "Anónimo")
+                            Switch(
+                                checked = anonymous,
+                                onCheckedChange = viewModel::onAnonymousChange,
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = Color(0xFFE29B1F),
+                                    uncheckedThumbColor = Color.LightGray,
+                                    uncheckedTrackColor = Color.White // o el que tú prefieras
+                                )
+                            )
+                        }
+                    }
                 }
 
-                Spacer(modifier = Modifier.weight(0.15f))
+                Spacer(modifier = Modifier.weight(0.10f))
 
                 SecondaryButton(
                     text = "Continuar",
-                    onClick = {viewModel.onContinueFromRegister3Click()},
+                    onClick = {viewModel.onContinueFromRegister4Click()},
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = inputCode.length == 6
+                    enabled = true
                 )
 
                 Spacer(modifier = Modifier.weight(0.15f))

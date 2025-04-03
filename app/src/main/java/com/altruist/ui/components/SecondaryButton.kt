@@ -24,7 +24,7 @@ fun SecondaryButton(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(55.dp)
     ) {
         Text(
             text = text,

@@ -19,10 +19,11 @@ import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
 import com.altruist.viewmodel.RegisterViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen2(
-    viewModel: RegisterViewModel = hiltViewModel(),
+    viewModel: RegisterViewModel,
     onRegister2Success: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
@@ -33,6 +34,8 @@ fun RegisterScreen2(
     val isLoading by viewModel.isLoading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val coroutineScope = rememberCoroutineScope()
 
     // Mostrar mensaje si hay error
     LaunchedEffect(errorMessage) {
@@ -45,10 +48,11 @@ fun RegisterScreen2(
         }
     }
 
-    LaunchedEffect(register2Success) {
-        if (register2Success) {
+    if (register2Success) {
+        LaunchedEffect(Unit) {
+            viewModel.resetRegister2Success()
+            viewModel.clearError()
             onRegister2Success()
-            viewModel.resetCodigoEnviado() // para evitar navegación doble
         }
     }
 
@@ -124,7 +128,11 @@ fun RegisterScreen2(
 
                 SecondaryButton(
                     text = if (isLoading) "Cargando..." else "Continuar",
-                    onClick = {viewModel.onContinueFromRegister2Click()},
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.onContinueFromRegister2Click()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading
                 )

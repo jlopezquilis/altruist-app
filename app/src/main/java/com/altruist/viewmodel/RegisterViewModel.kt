@@ -1,14 +1,15 @@
 package com.altruist.viewmodel
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.altruist.data.network.dto.user.LoginResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.altruist.data.repository.AuthRepository
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 
@@ -26,17 +27,24 @@ class RegisterViewModel @Inject constructor(
     private val _register3Success = MutableStateFlow(false)
     val register3Success: StateFlow<Boolean> = _register3Success
 
-    private val _nombre = MutableStateFlow("")
-    val nombre: StateFlow<String> = _nombre
+    private val _register4Success = MutableStateFlow(false)
+    val register4Success: StateFlow<Boolean> = _register4Success
 
-    private val _apellidos = MutableStateFlow("")
-    val apellidos: StateFlow<String> = _apellidos
+    private val _register5Success = MutableStateFlow(false)
+    val register5Success: StateFlow<Boolean> = _register5Success
+
+
+    private val _name = MutableStateFlow("")
+    val name: StateFlow<String> = _name
+
+    private val _surname = MutableStateFlow("")
+    val surname: StateFlow<String> = _surname
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username
 
-    private val _genero = MutableStateFlow("")
-    val genero: StateFlow<String> = _genero
+    private val _gender = MutableStateFlow("")
+    val gender: StateFlow<String> = _gender
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -46,6 +54,18 @@ class RegisterViewModel @Inject constructor(
 
     private val _repeatPassword = MutableStateFlow("")
     val repeatPassword: StateFlow<String> = _repeatPassword
+
+    private val _situation = MutableStateFlow("")
+    val situation: StateFlow<String> = _situation
+
+    private val _anonymous = MutableStateFlow(false)
+    val anonymous: StateFlow<Boolean> = _anonymous
+
+    private val _profilePictureUrl = MutableStateFlow<Uri?>(null)
+    val profilePictureUrl: StateFlow<Uri?> = _profilePictureUrl
+
+    private val _profilePictureUrlString = MutableStateFlow("")
+    val profilePictureUrlString: StateFlow<String> = _profilePictureUrlString
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -61,84 +81,125 @@ class RegisterViewModel @Inject constructor(
     private val _inputCode = MutableStateFlow("")
     val inputCode: StateFlow<String> = _inputCode
 
-    fun onNombreChange(value: String) {
-        _nombre.value = value
+    fun onNameChange(value: String) {
+        _name.value = value
+        _errorMessage.value = null
     }
 
-    fun onApellidosChange(value: String) {
-        _apellidos.value = value
+    fun onSurnameChange(value: String) {
+        _surname.value = value
+        _errorMessage.value = null
     }
 
     fun onUsernameChange(value: String) {
         _username.value = value
+        _errorMessage.value = null
     }
 
     fun onGeneroChange(value: String) {
-        _genero.value = value
+        _gender.value = value
+        _errorMessage.value = null
     }
 
     fun showError(message: String) {
         _errorMessage.value = message
     }
 
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
     fun onEmailChange(value: String) {
         _email.value = value
+        _errorMessage.value = null
     }
 
     fun onPasswordChange(value: String) {
         _password.value = value
+        _errorMessage.value = null
     }
 
     fun onRepeatPasswordChange(value: String) {
         _repeatPassword.value = value
+        _errorMessage.value = null
     }
 
     fun onInputCodeChange(value: String) {
         _inputCode.value = value
+        _errorMessage.value = null
     }
+
+    fun onSituationChange(value: String) {
+        _situation.value = value
+        _errorMessage.value = null
+    }
+
+    fun onAnonymousChange(value: Boolean) {
+        _anonymous.value = value
+        _errorMessage.value = null
+    }
+
+    fun setProfilePictureUrl(uri: Uri?) {
+        _profilePictureUrl.value = uri
+    }
+
 
     fun isUsernameValid(): Boolean {
         return usernameRegex.matches(_username.value)
     }
 
-    fun isUsernameAvailable(): Boolean {
-        val userExistent = repository.isUsernameAvailable(_username.value)
-        if (userExistent) {
-            showError("El nombre de usuario ya está en uso.")
-            return false
-        } else {
-            return true
-        }
+    suspend fun isEmailAvailable(email: String): Boolean {
+        val exists = repository.checkEmailExists(email)
+        return !exists
     }
 
+    suspend fun isUsernameAvailable(username: String): Boolean {
+        val exists = repository.checkUsernameExists(username)
+        return !exists
+    }
+
+
     fun isDataValid(): Boolean {
-        return _nombre.value.isNotBlank() &&
-                _apellidos.value.isNotBlank() &&
+        return _name.value.isNotBlank() &&
+                _surname.value.isNotBlank() &&
                 isUsernameValid() &&
-                _genero.value.isNotBlank()
+                _gender.value.isNotBlank()
     }
 
     fun isEmailValid(): Boolean {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()
     }
 
-    fun onContinueFromRegister1Click() {
+    suspend fun onContinueFromRegister1Click() {
         when {
-            _nombre.value.isBlank() ||
-                    _apellidos.value.isBlank() ||
+            _name.value.isBlank() ||
+                    _surname.value.isBlank() ||
                     _username.value.isBlank() ||
-                    _genero.value.isBlank() -> {
+                    _gender.value.isBlank() -> {
                 showError("Por favor, completa todos los campos.")
             }
 
             !isUsernameValid() -> {
-                showError("El nombre de usuario debe:\n- Tener al menos 4 caracteres\n- Empezar por letra\n- Solo usar letras, números, puntos o guiones bajos")
+                showError(
+                    "El nombre de usuario debe:\n" +
+                            "- Tener al menos 4 caracteres\n" +
+                            "- Empezar por letra\n" +
+                            "- Solo usar letras, números, puntos o guiones bajos"
+                )
             }
-            else -> _register1Success.value = true
+
+            !isUsernameAvailable(_username.value) -> {
+                showError("El nombre de usuario ya está en uso.")
+            }
+
+            else -> {
+                _register1Success.value = true
+            }
         }
     }
 
-    fun onContinueFromRegister2Click() {
+
+    suspend fun onContinueFromRegister2Click() {
         when {
             _email.value.isBlank() || _password.value.isBlank() || _repeatPassword.value.isBlank() -> {
                 showError("Por favor, completa todos los campos.")
@@ -146,6 +207,10 @@ class RegisterViewModel @Inject constructor(
 
             !isEmailValid() -> {
                 showError("El e-mail introducido no es válido.")
+            }
+
+            !isEmailAvailable(_email.value) -> {
+                showError("El e-mail ya está en uso.")
             }
 
             _password.value.length < 6 -> {
@@ -170,6 +235,48 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
+    fun onContinueFromRegister4Click() {
+        _register4Success.value = true
+    }
+
+    fun uploadProfileImage(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val uri = _profilePictureUrl.value ?: return onError("No has seleccionado ninguna imagen")
+
+        val storageRef = FirebaseStorage.getInstance().reference
+        val fileRef = storageRef.child("profile_pictures/${UUID.randomUUID()}.jpg")
+
+        fileRef.putFile(uri)
+            .addOnSuccessListener {
+                fileRef.downloadUrl
+                    .addOnSuccessListener { downloadUri ->
+                        val imageUrl = downloadUri
+                        _profilePictureUrl.value = imageUrl
+                        onSuccess()
+                    }
+                    .addOnFailureListener {
+                        onError("No se pudo obtener la URL")
+                    }
+            }
+            .addOnFailureListener {
+                onError("Error al subir imagen: ${it.message}")
+            }
+    }
+
+    fun onContinueFromRegister5Click() {
+        uploadProfileImage(
+            onSuccess = {
+                _profilePictureUrlString.value = _profilePictureUrl.value.toString()
+            },
+            onError = { error ->
+                showError(error)
+            }
+        )
+        _register5Success.value = true
+    }
+
     fun generarYEnviarCodigo(email: String) {
         val code = (100000..999999).random().toString()
         _verificationCode.value = code
@@ -190,6 +297,16 @@ class RegisterViewModel @Inject constructor(
     fun resetCodigoEnviado() {
         _register2Success.value = false
     }
-
-
+    fun resetRegister1Success() {
+        _register1Success.value = false
+    }
+    fun resetRegister2Success() {
+        _register2Success.value = false
+    }
+    fun resetRegister3Success() {
+        _register3Success.value = false
+    }
+    fun resetRegister4Success() {
+        _register4Success.value = false
+    }
 }

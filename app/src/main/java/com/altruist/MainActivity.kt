@@ -18,6 +18,8 @@ import com.altruist.ui.screens.LoginScreen
 import com.altruist.ui.screens.register.RegisterScreen1
 import com.altruist.ui.screens.register.RegisterScreen2
 import com.altruist.ui.screens.register.RegisterScreen3
+import com.altruist.ui.screens.register.RegisterScreen4
+import com.altruist.ui.screens.register.RegisterScreen5
 import com.altruist.viewmodel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,6 +41,8 @@ object NavRoutes {
     const val Register1 = "register1"
     const val Register2 = "register2"
     const val Register3 = "register3"
+    const val Register4 = "register4"
+    const val Register5 = "register5"
 }
 
 
@@ -77,7 +81,10 @@ fun AltruistApp() {
                 route = NavRoutes.RegisterGraph
             ) {
                 composable(NavRoutes.Register1) { backStackEntry ->
-                    val viewModel: RegisterViewModel = hiltViewModel(backStackEntry)
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.RegisterGraph)
+                    }
+                    val viewModel: RegisterViewModel = hiltViewModel(parentEntry)
                     RegisterScreen1(
                         viewModel = viewModel,
                         onRegister1Success = {
@@ -109,6 +116,34 @@ fun AltruistApp() {
                     RegisterScreen3(
                         viewModel = viewModel,
                         onRegister3Success = {
+                            navController.navigate(NavRoutes.Register4)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.Register4) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.RegisterGraph)
+                    }
+                    val viewModel: RegisterViewModel = hiltViewModel(parentEntry)
+
+                    RegisterScreen4(
+                        viewModel = viewModel,
+                        onRegister4Success = {
+                            navController.navigate(NavRoutes.Register5)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.Register5) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.RegisterGraph)
+                    }
+                    val viewModel: RegisterViewModel = hiltViewModel(parentEntry)
+
+                    RegisterScreen5(
+                        viewModel = viewModel,
+                        onRegister5Success = {
                             navController.navigate(NavRoutes.Welcome)
                         }
                     )

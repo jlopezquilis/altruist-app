@@ -8,6 +8,7 @@ import com.altruist.data.network.dto.user.LoginResponse
 import com.altruist.data.network.dto.user.SendVerificationCodeRequest
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
+import retrofit2.Response
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -67,17 +68,13 @@ class AuthRepository @Inject constructor(
 
     fun getLoggedInUser(): Flow<User?> = userSession.getUser()
 
-    suspend fun isUsernameAvailable(value: String): Boolean {
-        return try {
-            val response = api.find(SendVerificationCodeRequest(email, code))
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Error al enviar código: ${response.code()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(Exception("Error de red: ${e.message}"))
-        }
+    suspend fun checkEmailExists(email: String): Boolean {
+        return api.checkEmailExists(email).body()?.exists ?: false
+    }
+
+    suspend fun checkUsernameExists(username: String): Boolean {
+        val result = api.checkUsernameExists(username).body()?.exists
+        return result ?: false
     }
 }
 

@@ -23,24 +23,27 @@ import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
 import com.altruist.viewmodel.RegisterViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun RegisterScreen1(
-    viewModel: RegisterViewModel = hiltViewModel(),
+    viewModel: RegisterViewModel,
     onRegister1Success: () -> Unit
 ) {
     val register1Success by viewModel.register1Success.collectAsState()
 
-    val nombre by viewModel.nombre.collectAsState()
-    val apellidos by viewModel.apellidos.collectAsState()
+    val name by viewModel.name.collectAsState()
+    val surname by viewModel.surname.collectAsState()
     val username by viewModel.username.collectAsState()
-    val genero by viewModel.genero.collectAsState()
+    val genero by viewModel.gender.collectAsState()
 
     val generoOpciones = listOf("Masculino", "Femenino", "Otro")
 
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
 
 // Mostrar mensaje si hay error
     LaunchedEffect(errorMessage) {
@@ -53,8 +56,10 @@ fun RegisterScreen1(
         }
     }
 
-    LaunchedEffect(register1Success) {
-        if (register1Success) {
+    if (register1Success) {
+        LaunchedEffect(Unit) {
+            viewModel.resetRegister1Success()
+            viewModel.clearError()
             onRegister1Success()
         }
     }
@@ -105,15 +110,15 @@ fun RegisterScreen1(
                 ) {
                     AltruistLabeledTextField(
                         label = "Nombre",
-                        value = nombre,
-                        onValueChange = viewModel::onNombreChange,
+                        value = name,
+                        onValueChange = viewModel::onNameChange,
                         placeholder = "Nombre"
                     )
 
                     AltruistLabeledTextField(
                         label = "Apellidos",
-                        value = apellidos,
-                        onValueChange = viewModel::onApellidosChange,
+                        value = surname,
+                        onValueChange = viewModel::onSurnameChange,
                         placeholder = "Apellidos"
                     )
 
@@ -189,7 +194,11 @@ fun RegisterScreen1(
 
                 SecondaryButton(
                     text = "Continuar",
-                    onClick = {viewModel.onContinueFromRegister1Click()},
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.onContinueFromRegister1Click()
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = viewModel.isDataValid()
                 )
