@@ -28,7 +28,8 @@ import com.altruist.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit
 ) {
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -53,7 +54,7 @@ fun LoginScreen(
     // Navegar si login fue exitoso
     LaunchedEffect(loginSuccess) {
         if (loginSuccess){
-            //Paso a siguiente Screen. El objeto User ya se ha creado en repository
+            onLoginSuccess()
         }
     }
 
@@ -144,95 +145,3 @@ fun LoginScreen(
     }
 }
 
-/* FOR PREVIEW */
-@Composable
-fun LoginScreenPreviewContent() {
-    // Estados fake para simular el comportamiento
-    var email by remember { mutableStateOf("correo@ejemplo.com") }
-    var password by remember { mutableStateOf("123456") }
-    var errorMessage by remember { mutableStateOf("Error al iniciar sesión.\nUsuario o contraseña incorrectos.") }
-    val isLoading = false
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to BackgroundTop,
-                        0.4f to BackgroundTop,
-                        1.0f to BackgroundBottom
-                    )
-                )
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 40.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(0.10f))
-
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Altruist",
-                modifier = Modifier.size(230.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(0.10f))
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("E-mail",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                    AltruistTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        placeholder = "E-mail"
-                    )
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Contraseña",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 10.dp)
-                    )
-                    AltruistTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        placeholder = "Contraseña",
-                        visualTransformation = PasswordVisualTransformation()
-                    )
-                }
-            }
-
-            if (errorMessage.isNotBlank()) {
-                Text(
-                    text = errorMessage,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.error,
-                    style = ErrorTextStyle,
-                    modifier = Modifier.padding(top = 35.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(0.10f))
-
-            PrimaryButton(
-                text = if (isLoading) "Cargando..." else "Iniciar Sesión",
-                onClick = { /* No hace nada en preview */ },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
-            )
-
-            Spacer(modifier = Modifier.weight(0.15f))
-        }
-    }
-}

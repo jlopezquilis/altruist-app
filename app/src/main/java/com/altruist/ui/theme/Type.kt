@@ -32,7 +32,7 @@ val Typography = Typography(
     labelLarge = TextStyle(
         fontFamily = PublicSans,
         fontSize = 15.sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.SemiBold
     ),
     titleLarge = TextStyle(
         fontFamily = PublicSans,

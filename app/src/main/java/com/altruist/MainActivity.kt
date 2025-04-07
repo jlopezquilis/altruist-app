@@ -15,11 +15,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.altruist.ui.screens.LoginScreen
+import com.altruist.ui.screens.create_post.CreatePostScreen1
+import com.altruist.ui.screens.main.MainMenuScreen
 import com.altruist.ui.screens.register.RegisterScreen1
 import com.altruist.ui.screens.register.RegisterScreen2
 import com.altruist.ui.screens.register.RegisterScreen3
 import com.altruist.ui.screens.register.RegisterScreen4
 import com.altruist.ui.screens.register.RegisterScreen5
+import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,6 +46,13 @@ object NavRoutes {
     const val Register3 = "register3"
     const val Register4 = "register4"
     const val Register5 = "register5"
+
+    const val MAINMENU = "mainMenu"
+
+    const val CreatePostGraph = "createPost"
+    const val CreatePost1 = "createPost1"
+    const val CreatePost2 = "createPost2"
+    const val CreatePost3 = "createPost3"
 }
 
 
@@ -68,11 +78,9 @@ fun AltruistApp() {
 
             composable(NavRoutes.Login) {
                 LoginScreen(
-                    /*onLoginSuccess = {
-                        // Ejemplo: ir a Home o mostrar mensaje
-                        println("Login correcto")
+                    onLoginSuccess = {
+                        navController.navigate(NavRoutes.MAINMENU)
                     }
-                     */
                 )
             }
 
@@ -145,6 +153,37 @@ fun AltruistApp() {
                         viewModel = viewModel,
                         onRegister5Success = {
                             navController.navigate(NavRoutes.Welcome)
+                        }
+                    )
+                }
+            }
+
+            composable(NavRoutes.MAINMENU) {
+                MainMenuScreen(
+                        onDonarClick = {
+                            navController.navigate(NavRoutes.CreatePostGraph)
+                        },
+                        onBuscarClick = {},
+                        onMisDonacionesClick = {},
+                        onMensajesClick = {},
+                        onPerfilClick = {}
+                )
+            }
+
+            navigation(
+                startDestination = NavRoutes.CreatePost1,
+                route = NavRoutes.CreatePostGraph
+            ) {
+                composable(NavRoutes.CreatePost1) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    //TODO: Sustituir por CreatePostScreen1
+                    CreatePostScreen1(
+                        viewModel = viewModel,
+                        onPost1Success = {
+                            navController.navigate(NavRoutes.Register2)
                         }
                     )
                 }
