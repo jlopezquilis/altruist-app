@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import javax.inject.Inject
 
-class AuthRepository @Inject constructor(
+class UserRepository @Inject constructor(
     private val api: ApiService,
     private val userSession: UserSession
 ) {

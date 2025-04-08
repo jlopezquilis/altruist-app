@@ -3,7 +3,7 @@ package com.altruist.dependecy_injection
 import android.content.Context
 import com.altruist.data.datastore.UserSession
 import com.altruist.data.network.ApiService
-import com.altruist.data.repository.AuthRepository
+import com.altruist.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -43,7 +43,7 @@ object AppModule {
     fun provideAuthRepository(
         apiService: ApiService,
         userSession: UserSession
-    ): AuthRepository {
-        return AuthRepository(apiService, userSession)
+    ): UserRepository {
+        return UserRepository(apiService, userSession)
     }
 }

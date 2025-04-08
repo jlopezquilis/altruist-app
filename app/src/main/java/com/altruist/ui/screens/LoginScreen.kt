@@ -36,7 +36,6 @@ fun LoginScreen(
     val errorMessage by viewModel.errorMessage.collectAsState()
     val loginSuccess by viewModel.loginSuccess.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val user by viewModel.currentUser.collectAsState(initial = null)
 
     val snackbarHostState = remember { SnackbarHostState() }
 

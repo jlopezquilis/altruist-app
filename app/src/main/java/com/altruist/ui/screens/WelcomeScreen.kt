@@ -25,7 +25,9 @@ fun WelcomeScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    AltruistScreenWrapper {
+    AltruistScreenWrapper (
+        color = BackgroundTop
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()

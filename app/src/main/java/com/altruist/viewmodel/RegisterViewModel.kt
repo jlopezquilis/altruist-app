@@ -5,10 +5,9 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.R
-import com.altruist.data.model.User
 import com.altruist.data.network.dto.user.CreateUserRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
-import com.altruist.data.repository.AuthRepository
+import com.altruist.data.repository.UserRepository
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,7 +17,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: UserRepository
 ) : ViewModel() {
 
     private val _register1Success = MutableStateFlow(false)

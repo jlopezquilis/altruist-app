@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.model.Category
+import com.altruist.data.repository.CategoryRepository
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -12,10 +14,15 @@ import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
-class CreatePostViewModel @Inject constructor() : ViewModel() {
+class CreatePostViewModel @Inject constructor(
+    private val categoryRepository: CategoryRepository
+) : ViewModel() {
 
     private val _title = MutableStateFlow("")
     val title: StateFlow<String> = _title
+
+    private val _categories = MutableStateFlow<List<Category>>(emptyList())
+    val categories: StateFlow<List<Category>> = _categories
 
     private val _category = MutableStateFlow("")
     val category: StateFlow<String> = _category
@@ -34,6 +41,12 @@ class CreatePostViewModel @Inject constructor() : ViewModel() {
 
     private val _createPost1Success = MutableStateFlow(false)
     val createPost1Success: StateFlow<Boolean> = _createPost1Success
+
+    init {
+        viewModelScope.launch {
+            loadCategories()
+        }
+    }
 
     fun onTitleChange(value: String) {
         _title.value = value
@@ -111,6 +124,17 @@ class CreatePostViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    suspend fun loadCategories() {
+        _isLoading.value = true
+        val result = categoryRepository.getAllCategories()
+        _isLoading.value = false
+        result.onSuccess { categories ->
+            _categories.value = categories
+        }.onFailure {
+            _errorMessage.value = "Error al cargar las categorías: ${it.message}"}
+    }
+
+
     fun onContinueFromCreatePost1Click(context: Context) {
         when {
             _title.value.isBlank() || _category.value.isBlank() -> {
@@ -138,3 +162,4 @@ class CreatePostViewModel @Inject constructor() : ViewModel() {
         _createPost1Success.value = false
     }
 }
+

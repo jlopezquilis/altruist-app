@@ -1,5 +1,6 @@
 package com.altruist.utils
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 @Composable
 fun AltruistScreenWrapper(
     modifier: Modifier = Modifier,
+    color: Color,
     useDarkIcons: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable BoxScope.() -> Unit
@@ -23,7 +25,7 @@ fun AltruistScreenWrapper(
 
     SideEffect {
         systemUiController.setStatusBarColor(
-            color = BackgroundTop,
+            color = color,
             darkIcons = useDarkIcons
         )
     }

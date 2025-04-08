@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.data.model.User
 import com.altruist.data.network.dto.user.LoginResponse
-import com.altruist.data.repository.AuthRepository
+import com.altruist.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: UserRepository
 ) : ViewModel() {
 
     private val _loginSuccess = MutableStateFlow(false)
@@ -57,7 +57,6 @@ class LoginViewModel @Inject constructor(
             _isLoading.value = false
             loginResponseResult.onSuccess {
                 _loginSuccess.value = true
-                showError("Hola, ${it.name}")
             }.onFailure {
                 showError("Error al iniciar sesión.\n${it.message}")
             }

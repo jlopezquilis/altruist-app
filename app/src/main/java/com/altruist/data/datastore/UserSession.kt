@@ -30,11 +30,11 @@ class UserSession(private val context: Context) {
             prefs[NAME] = user.name
             prefs[EMAIL] = user.email
             prefs[USERNAME] = user.username
-            prefs[SURNAME] = user.surname
+            prefs[SURNAME] = user.surname ?: ""
             prefs[GENDER] = user.gender
             prefs[PASSWORD_HASH] = user.password_hash
-            prefs[SITUATION] = user.situation
-            prefs[PROFILE_PICTURE_URL] = user.profile_picture_url
+            prefs[SITUATION] = user.situation ?: ""
+            prefs[PROFILE_PICTURE_URL] = user.profile_picture_url ?: ""
             prefs[ANONYMOUS] = user.anonymous
         }
     }
