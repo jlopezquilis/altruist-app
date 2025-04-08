@@ -59,7 +59,7 @@ fun CircleButton(
 
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.labelLarge,
             color = Color.DarkGray
         )
     }

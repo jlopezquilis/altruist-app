@@ -26,14 +26,20 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
+import com.altruist.ui.components.AltruistBorderedTextField
 import com.altruist.ui.components.AltruistLabeledTextField
 import com.altruist.ui.components.AltruistSnackbarHost
+import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.SecondaryButton
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.theme.BackgroundTop
+import com.altruist.ui.theme.Gray
+import com.altruist.ui.theme.TitleMediumTextStyle
+import com.altruist.ui.theme.White
 import com.altruist.viewmodel.CreatePostViewModel
 import kotlinx.coroutines.launch
 
@@ -89,47 +95,49 @@ fun CreatePostScreen1(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to BackgroundTop,
-                            0.6f to BackgroundTop,
-                            1.0f to BackgroundBottom
-                        )
-                    )
-                )
+                .background(color = White)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                    .padding(horizontal = 40.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    Text(
-                        text = "Vamos a crear una publicación",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                Spacer(modifier = Modifier.weight(0.1f))
+                Text(
+                    text = "Vamos a crear una publicación",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.weight(0.1f))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(35.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+
 
                     Column {
-                        Text("¿Qué quieres donar?", style = MaterialTheme.typography.labelLarge)
-                        Text("Pon un buen título", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        AltruistLabeledTextField(
-                            label = "",
+                        DoubleTitleForTextField(
+                            title1 = "¿Qué quieres donar?",
+                            title2 = "Pon un buen título"
+                        )
+                        AltruistBorderedTextField(
                             value = title,
                             onValueChange = viewModel::onTitleChange,
+                            singleLine = true,
+                            textAlign = TextAlign.Start,
                             placeholder = "Título"
                         )
                     }
 
                     Column {
-                        Text("Elige una categoría", style = MaterialTheme.typography.labelLarge)
-                        Text("Así encontrarán mejor tu publicación", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        DoubleTitleForTextField(
+                            title1 = "Elige una categoría",
+                            title2 = "Así encontrarán mejor tu publicación"
+                        )
 
                         var expanded by remember { mutableStateOf(false) }
-                        val categorias = listOf("Ropa", "Comida", "Muebles", "Juguetes", "Otros")
+                        val categorias = listOf("Alimentos", "Libros", "Juguetes", "Electrónica", "Ropa", "Electrodomésticos", "Muebles", "Higiene y salud", "Ayuda humana", "Otros")
 
                         Box(
                             modifier = Modifier
@@ -167,13 +175,16 @@ fun CreatePostScreen1(
                     }
 
                     Column {
-                        Text("Añade algunas fotos", style = MaterialTheme.typography.labelLarge)
-                        Text("Muéstrale al mundo qué quieres donar", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        DoubleTitleForTextField(
+                            title1 = "Añade algunas fotos",
+                            title2 = "Muéstrale al mundo qué quieres donar"
+                        )
 
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             items(imageUris) { uri ->
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
                                     Image(
                                         painter = rememberAsyncImagePainter(uri),
                                         contentDescription = null,
@@ -211,6 +222,8 @@ fun CreatePostScreen1(
                     }
                 }
 
+                Spacer(modifier = Modifier.weight(0.1f))
+
                 SecondaryButton(
                     text = "Continuar",
                     onClick = {
@@ -221,6 +234,8 @@ fun CreatePostScreen1(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = viewModel.isDataValid()
                 )
+
+                Spacer(modifier = Modifier.weight(0.1f))
             }
         }
     }

@@ -119,7 +119,7 @@ fun RegisterScreen1(
                         label = "Apellidos",
                         value = surname,
                         onValueChange = viewModel::onSurnameChange,
-                        placeholder = "Apellidos"
+                        placeholder = "Apellidos (Opcional)"
                     )
 
                     AltruistLabeledTextField(

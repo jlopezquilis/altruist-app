@@ -179,7 +179,7 @@ class RegisterViewModel @Inject constructor(
                     _surname.value.isBlank() ||
                     _username.value.isBlank() ||
                     _gender.value.isBlank() -> {
-                showError("Por favor, completa todos los campos.")
+                showError("Por favor, completa al menos el Nombre y el Nombre de usuario.")
             }
 
             !isUsernameValid() -> {

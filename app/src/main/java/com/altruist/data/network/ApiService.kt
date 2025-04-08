@@ -1,6 +1,7 @@
 package com.altruist.data.network
 
 import com.altruist.data.model.User
+import com.altruist.data.network.dto.AllCategoriesResponse
 import com.altruist.data.network.dto.user.AvailabilityResponse
 import com.altruist.data.network.dto.user.CreateUserRequest
 import com.altruist.data.network.dto.user.SendVerificationCodeRequest
@@ -33,4 +34,8 @@ interface ApiService {
 
     @POST("api/users/create")
     suspend fun createUser(@Body user: CreateUserRequest): Response<CreateUserRequest>
+
+    @GET("api/categories")
+    suspend fun getAllCategories(): Response<List<AllCategoriesResponse>>
+
 }

@@ -19,8 +19,7 @@ fun MainMenuScreen(
     onDonarClick: () -> Unit,
     onBuscarClick: () -> Unit,
     onMisDonacionesClick: () -> Unit,
-    onMensajesClick: () -> Unit,
-    onPerfilClick: () -> Unit
+    onMensajesClick: () -> Unit
 ) {
 
     Box(
@@ -67,13 +66,13 @@ fun MainMenuScreen(
                         icon = R.drawable.ic_donar,
                         size = 90.dp,
                         imageSize = 50.dp,
-                        onClick = { onDonarClick }
+                        onClick = onDonarClick
                     )
                     CircleButton("Quiero Buscar",
                         icon = R.drawable.ic_lupa,
                         size = 90.dp,
                         imageSize = 50.dp,
-                        onClick = { onBuscarClick }
+                        onClick = onBuscarClick
                     )
                 }
 
@@ -82,7 +81,7 @@ fun MainMenuScreen(
                     icon = R.drawable.ic_post,
                     size = 90.dp,
                     imageSize = 50.dp,
-                    onClick = { onMisDonacionesClick }
+                    onClick = onMisDonacionesClick
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -96,13 +95,13 @@ fun MainMenuScreen(
                         icon = R.drawable.ic_chat,
                         size = 70.dp,
                         imageSize = 35.dp,
-                        onClick = { onMensajesClick }
+                        onClick = onMensajesClick
                     )/*
                     CircleButton("Perfil",
                         icon = R.drawable.menu_profile,
                         size = 70.dp,
                         imageSize = 35.dp,
-                        onClick = { onPerfilClick }
+                        onClick = onPerfilClick
                     )
                     */
                 }

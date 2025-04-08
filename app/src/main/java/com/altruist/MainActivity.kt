@@ -163,10 +163,15 @@ fun AltruistApp() {
                         onDonarClick = {
                             navController.navigate(NavRoutes.CreatePostGraph)
                         },
-                        onBuscarClick = {},
-                        onMisDonacionesClick = {},
-                        onMensajesClick = {},
-                        onPerfilClick = {}
+                        onBuscarClick = {
+                            navController.navigate(NavRoutes.MAINMENU)
+                        },
+                        onMisDonacionesClick = {
+                            navController.navigate(NavRoutes.MAINMENU)
+                        },
+                        onMensajesClick = {
+                            navController.navigate(NavRoutes.MAINMENU)
+                        }
                 )
             }
 
