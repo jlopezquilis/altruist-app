@@ -1,6 +1,5 @@
 package com.altruist.ui.screens.create_post
 
-import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,35 +13,26 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.altruist.R
 import com.altruist.ui.components.AltruistBorderedTextField
-import com.altruist.ui.components.AltruistLabeledTextField
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.DoubleTitleForTextField
-import com.altruist.ui.components.DropDownBorderedAltruist
+import com.altruist.ui.components.DropDownCategoryBorderedAltruist
 import com.altruist.ui.components.SecondaryButton
-import com.altruist.ui.theme.BackgroundBottom
-import com.altruist.ui.theme.BackgroundTop
-import com.altruist.ui.theme.Gray
 import com.altruist.ui.theme.Shapes
-import com.altruist.ui.theme.TitleMediumTextStyle
 import com.altruist.ui.theme.White
 import com.altruist.ui.theme.YellowDark
 import com.altruist.utils.AltruistScreenWrapper
@@ -61,6 +51,7 @@ fun CreatePostScreen1(
     val createPost1Success by viewModel.createPost1Success.collectAsState()
     val categorias by viewModel.categories.collectAsState()
 
+    val isLoading by viewModel.isLoading.collectAsState()
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
@@ -85,6 +76,7 @@ fun CreatePostScreen1(
     LaunchedEffect(createPost1Success) {
         if (createPost1Success) {
             viewModel.resetCreatePost1Success()
+            viewModel.clearError()
             onPost1Success()
         }
     }
@@ -137,7 +129,8 @@ fun CreatePostScreen1(
                                 onValueChange = viewModel::onTitleChange,
                                 singleLine = true,
                                 textAlign = TextAlign.Start,
-                                placeholder = "Título"
+                                placeholder = "Título",
+                                height = 56.dp
                             )
                         }
 
@@ -148,8 +141,8 @@ fun CreatePostScreen1(
                             )
 
                             var expanded by remember { mutableStateOf(false) }
-
-                            DropDownBorderedAltruist(
+                            
+                            DropDownCategoryBorderedAltruist(
                                 category = category,
                                 categorias = categorias,
                                 expanded = expanded,
@@ -158,7 +151,6 @@ fun CreatePostScreen1(
                                     viewModel.onCategoryChange(selectedCategory)
                                 }
                             )
-
                         }
 
                         Column {
@@ -220,14 +212,15 @@ fun CreatePostScreen1(
                     Spacer(modifier = Modifier.weight(0.1f))
 
                     SecondaryButton(
-                        text = "Continuar",
+                        text = if (isLoading) "Cargando..." else "Continuar",
                         onClick = {
+                            viewModel.clearError()
                             coroutineScope.launch {
                                 viewModel.onContinueFromCreatePost1Click(context)
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = viewModel.isDataValid()
+                        enabled = viewModel.isDataScreen1Valid() && !isLoading
                     )
 
                     Spacer(modifier = Modifier.weight(0.1f))

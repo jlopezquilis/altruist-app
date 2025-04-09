@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.altruist.ui.screens.LoginScreen
 import com.altruist.ui.screens.create_post.CreatePostScreen1
+import com.altruist.ui.screens.create_post.CreatePostScreen2
 import com.altruist.ui.screens.main.MainMenuScreen
 import com.altruist.ui.screens.register.RegisterScreen1
 import com.altruist.ui.screens.register.RegisterScreen2
@@ -63,7 +64,7 @@ fun AltruistApp() {
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.Welcome
+            startDestination = NavRoutes.CreatePostGraph
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
@@ -110,7 +111,7 @@ fun AltruistApp() {
                     RegisterScreen2(
                         viewModel = viewModel,
                         onRegister2Success = {
-                            navController.navigate(NavRoutes.Register3)
+                            //navController.navigate(NavRoutes.Register3)
                         }
                     )
                 }
@@ -184,11 +185,23 @@ fun AltruistApp() {
                         navController.getBackStackEntry(NavRoutes.CreatePostGraph)
                     }
                     val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
-                    //TODO: Sustituir por CreatePostScreen1
                     CreatePostScreen1(
                         viewModel = viewModel,
                         onPost1Success = {
-                            navController.navigate(NavRoutes.Register2)
+                            navController.navigate(NavRoutes.CreatePost2)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.CreatePost2) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    CreatePostScreen2(
+                        viewModel = viewModel,
+                        onPost2Success = {
+                            navController.navigate(NavRoutes.CreatePost3)
                         }
                     )
                 }

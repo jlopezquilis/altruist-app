@@ -23,5 +23,5 @@ fun DoubleTitleForTextField(title1: String, title2: String) {
         style = MaterialTheme.typography.bodyLarge,
         color = Gray
     )
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 }

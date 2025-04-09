@@ -22,6 +22,8 @@ import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.White
+import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.RegisterViewModel
 import kotlinx.coroutines.launch
 
@@ -64,146 +66,155 @@ fun RegisterScreen1(
         }
     }
 
-    Scaffold(
-        snackbarHost = {
-            AltruistSnackbarHost(
-                snackbarHostState = snackbarHostState,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-        },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to BackgroundTop,
-                            0.6f to BackgroundTop,
-                            1.0f to BackgroundBottom
-                        )
-                    )
+    AltruistScreenWrapper (
+        statusBarColor = BackgroundTop,
+        navigationBarColor = BackgroundBottom
+    ) {
+        Scaffold(
+            snackbarHost = {
+                AltruistSnackbarHost(
+                    snackbarHostState = snackbarHostState,
+                    modifier = Modifier.padding(bottom = 32.dp)
                 )
-        ) {
-            Column(
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding ->
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 40.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(innerPadding)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0.0f to BackgroundTop,
+                                0.6f to BackgroundTop,
+                                1.0f to BackgroundBottom
+                            )
+                        )
+                    )
             ) {
-                Spacer(modifier = Modifier.weight(0.05f))
-
-                Image(
-                    painter = painterResource(id = R.drawable.logo),
-                    contentDescription = "Logo Altruist",
-                    modifier = Modifier.size(230.dp)
-                )
-
-                Spacer(modifier = Modifier.weight(0.05f))
-
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 40.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    AltruistLabeledTextField(
-                        label = "Nombre",
-                        value = name,
-                        onValueChange = viewModel::onNameChange,
-                        placeholder = "Nombre"
+                    Spacer(modifier = Modifier.weight(0.05f))
+
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "Logo Altruist",
+                        modifier = Modifier.size(230.dp)
                     )
 
-                    AltruistLabeledTextField(
-                        label = "Apellidos",
-                        value = surname,
-                        onValueChange = viewModel::onSurnameChange,
-                        placeholder = "Apellidos (Opcional)"
-                    )
+                    Spacer(modifier = Modifier.weight(0.05f))
 
-                    AltruistLabeledTextField(
-                        label = "Nombre de usuario",
-                        value = username,
-                        onValueChange = viewModel::onUsernameChange,
-                        placeholder = "Nombre de usuario"
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(24.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Género",
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 40.dp)
+                        AltruistLabeledTextField(
+                            label = "Nombre",
+                            value = name,
+                            onValueChange = viewModel::onNameChange,
+                            placeholder = "Nombre"
                         )
 
-                        Box(
+                        AltruistLabeledTextField(
+                            label = "Apellidos",
+                            value = surname,
+                            onValueChange = viewModel::onSurnameChange,
+                            placeholder = "Apellidos (Opcional)"
+                        )
+
+                        AltruistLabeledTextField(
+                            label = "Nombre de usuario",
+                            value = username,
+                            onValueChange = viewModel::onUsernameChange,
+                            placeholder = "Nombre de usuario"
+                        )
+
+                        Row(
                             modifier = Modifier
-                                .weight(1.3f)
-                                .padding(end = 30.dp)
-                                .background(Color.White, shape = RoundedCornerShape(16.dp))
-                                .border(1.dp, color = Color.LightGray, shape = RoundedCornerShape(16.dp))
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            var expanded by remember { mutableStateOf(false) }
-
-                            Row(
+                            Text(
+                                text = "Género",
+                                style = MaterialTheme.typography.labelLarge,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { expanded = true },
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = genero.ifEmpty { "Seleccionar" },
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = if (genero.isEmpty()) Color.Gray.copy(alpha = 0.5f) else Color.Black
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.ArrowDropDown,
-                                    contentDescription = "Seleccionar género"
-                                )
-                            }
+                                    .weight(1f)
+                                    .padding(start = 40.dp)
+                            )
 
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false }
-                            ) {
-                                generoOpciones.forEach { opcion ->
-                                    DropdownMenuItem(
-                                        text = { Text(opcion) },
-                                        onClick = {
-                                            viewModel.onGeneroChange(opcion)
-                                            expanded = false
-                                        }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1.3f)
+                                    .padding(end = 30.dp)
+                                    .background(Color.White, shape = RoundedCornerShape(16.dp))
+                                    .border(
+                                        1.dp,
+                                        color = Color.LightGray,
+                                        shape = RoundedCornerShape(16.dp)
                                     )
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                            ) {
+                                var expanded by remember { mutableStateOf(false) }
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { expanded = true },
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = genero.ifEmpty { "Seleccionar" },
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = if (genero.isEmpty()) Color.Gray.copy(alpha = 0.5f) else Color.Black
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = "Seleccionar género"
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    generoOpciones.forEach { opcion ->
+                                        DropdownMenuItem(
+                                            text = { Text(opcion) },
+                                            onClick = {
+                                                viewModel.onGeneroChange(opcion)
+                                                expanded = false
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.weight(0.15f))
+
+                    SecondaryButton(
+                        text = "Continuar",
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.onContinueFromRegister1Click()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = viewModel.isDataValid()
+                    )
+
+                    Spacer(modifier = Modifier.weight(0.15f))
                 }
-
-                Spacer(modifier = Modifier.weight(0.15f))
-
-                SecondaryButton(
-                    text = "Continuar",
-                    onClick = {
-                        coroutineScope.launch {
-                            viewModel.onContinueFromRegister1Click()
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = viewModel.isDataValid()
-                )
-
-                Spacer(modifier = Modifier.weight(0.15f))
             }
         }
     }

@@ -13,6 +13,7 @@ import com.altruist.R
 import com.altruist.ui.components.CircleButton
 import com.altruist.ui.theme.BackgroundTop
 import com.altruist.ui.theme.BackgroundBottom
+import com.altruist.utils.AltruistScreenWrapper
 
 @Composable
 fun MainMenuScreen(
@@ -22,81 +23,89 @@ fun MainMenuScreen(
     onMensajesClick: () -> Unit
 ) {
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 32.dp)
-            .background(
-                brush = Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to BackgroundTop,
-                        0.6f to BackgroundTop,
-                        1.0f to BackgroundBottom
-                    )
-                )
-            )
+    AltruistScreenWrapper (
+        statusBarColor = BackgroundTop,
+        navigationBarColor = BackgroundBottom
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 40.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(bottom = 32.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to BackgroundTop,
+                            0.6f to BackgroundTop,
+                            1.0f to BackgroundBottom
+                        )
+                    )
+                )
         ) {
-            Spacer(modifier = Modifier.weight(0.05f))
-
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Altruist",
-                modifier = Modifier.size(230.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(0.05f))
-
             Column(
-                verticalArrangement = Arrangement.spacedBy(32.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 40.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Fila de botones superiores
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    CircleButton("Quiero Donar",
-                        icon = R.drawable.ic_donar,
-                        size = 90.dp,
-                        imageSize = 50.dp,
-                        onClick = onDonarClick
-                    )
-                    CircleButton("Quiero Buscar",
-                        icon = R.drawable.ic_lupa,
-                        size = 90.dp,
-                        imageSize = 50.dp,
-                        onClick = onBuscarClick
-                    )
-                }
+                Spacer(modifier = Modifier.weight(0.05f))
 
-                // Botón central
-                CircleButton("Mis donaciones",
-                    icon = R.drawable.ic_post,
-                    size = 90.dp,
-                    imageSize = 50.dp,
-                    onClick = onMisDonacionesClick
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "Logo Altruist",
+                    modifier = Modifier.size(230.dp)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.weight(0.05f))
 
-                // Fila de botones inferiores
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier.fillMaxWidth()
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    CircleButton("Mensajes",
-                        icon = R.drawable.ic_chat,
-                        size = 70.dp,
-                        imageSize = 35.dp,
-                        onClick = onMensajesClick
-                    )/*
+                    // Fila de botones superiores
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CircleButton(
+                            "Quiero Donar",
+                            icon = R.drawable.ic_donar,
+                            size = 90.dp,
+                            imageSize = 50.dp,
+                            onClick = onDonarClick
+                        )
+                        CircleButton(
+                            "Quiero Buscar",
+                            icon = R.drawable.ic_lupa,
+                            size = 90.dp,
+                            imageSize = 50.dp,
+                            onClick = onBuscarClick
+                        )
+                    }
+
+                    // Botón central
+                    CircleButton(
+                        "Mis donaciones",
+                        icon = R.drawable.ic_post,
+                        size = 90.dp,
+                        imageSize = 50.dp,
+                        onClick = onMisDonacionesClick
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Fila de botones inferiores
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        CircleButton(
+                            "Mensajes",
+                            icon = R.drawable.ic_chat,
+                            size = 70.dp,
+                            imageSize = 35.dp,
+                            onClick = onMensajesClick
+                        )/*
                     CircleButton("Perfil",
                         icon = R.drawable.menu_profile,
                         size = 70.dp,
@@ -104,9 +113,10 @@ fun MainMenuScreen(
                         onClick = onPerfilClick
                     )
                     */
+                    }
                 }
+                Spacer(modifier = Modifier.weight(0.10f))
             }
-            Spacer(modifier = Modifier.weight(0.10f))
         }
     }
 }

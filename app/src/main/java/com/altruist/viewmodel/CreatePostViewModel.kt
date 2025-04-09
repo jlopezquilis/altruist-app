@@ -21,6 +21,7 @@ class CreatePostViewModel @Inject constructor(
     private val _title = MutableStateFlow("")
     val title: StateFlow<String> = _title
 
+    // Lista de categorías (Tipo Category)
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories
 
@@ -36,11 +37,20 @@ class CreatePostViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _description = MutableStateFlow("")
+    val description: StateFlow<String> = _description
+
+    private val _status = MutableStateFlow("")
+    val status: StateFlow<String> = _status
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
     private val _createPost1Success = MutableStateFlow(false)
     val createPost1Success: StateFlow<Boolean> = _createPost1Success
+
+    private val _createPost2Success = MutableStateFlow(false)
+    val createPost2Success: StateFlow<Boolean> = _createPost2Success
 
     init {
         viewModelScope.launch {
@@ -58,20 +68,34 @@ class CreatePostViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun addImage(uri: Uri) {
-        _imageUris.value = _imageUris.value + uri
+    fun onDescriptionChange(value: String) {
+        _description.value = value
+        _errorMessage.value = null
     }
 
-    fun removeImage(uri: Uri) {
-        _imageUris.value = _imageUris.value - uri
+    fun onStateChange(value: String) {
+        _status.value = value
+        _errorMessage.value = null
     }
 
     fun clearError() {
         _errorMessage.value = null
     }
 
-    fun isDataValid(): Boolean {
+    fun addImage(uri: Uri) {
+        _imageUris.value = _imageUris.value + uri
+    }
+
+  fun removeImage(uri: Uri) {
+        _imageUris.value = _imageUris.value - uri
+    }
+
+    fun isDataScreen1Valid(): Boolean {
         return _title.value.isNotBlank() && _category.value.isNotBlank()
+    }
+
+    fun isDataScreen2Valid(): Boolean {
+        return _description.value.isNotBlank() && _status.value.isNotBlank()
     }
 
     fun onAddImageClick(uri: Uri?) {
@@ -81,7 +105,6 @@ class CreatePostViewModel @Inject constructor(
     }
 
     fun uploadImagesToFirebase(
-        context: Context,
         onSuccess: () -> Unit = {},
         onError: (String) -> Unit = {}
     ) {
@@ -144,7 +167,6 @@ class CreatePostViewModel @Inject constructor(
             else -> {
                 _isLoading.value = true
                 uploadImagesToFirebase(
-                    context = context,
                     onSuccess = {
                         _createPost1Success.value = true
                         _isLoading.value = false
@@ -158,8 +180,23 @@ class CreatePostViewModel @Inject constructor(
         }
     }
 
+    fun onContinueFromCreatePost2Click() {
+        when {
+            _description.value.isBlank() || _status.value.isBlank() -> {
+                _errorMessage.value = "Por favor, completa todos los campos."
+            }
+
+            else -> {
+                _createPost2Success.value = true
+            }
+        }
+    }
+
     fun resetCreatePost1Success() {
         _createPost1Success.value = false
+    }
+    fun resetCreatePost2Success() {
+        _createPost2Success.value = false
     }
 }
 

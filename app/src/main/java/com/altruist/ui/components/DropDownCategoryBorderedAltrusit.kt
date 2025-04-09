@@ -19,7 +19,7 @@ import com.altruist.ui.theme.YellowDark
 
 
 @Composable
-fun DropDownBorderedAltruist(
+fun DropDownCategoryBorderedAltruist(
     category: String,
     categorias: List<Category>, // Asegúrate de que Category tenga una propiedad `name`
     expanded: Boolean,

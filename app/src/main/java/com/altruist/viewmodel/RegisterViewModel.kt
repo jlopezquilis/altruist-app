@@ -264,7 +264,7 @@ class RegisterViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val uri = _profilePictureUri.value ?: getDefaultProfileUri(context) // 👈 Aquí el cambio clave
+        val uri = _profilePictureUri.value ?: getDefaultProfileUri(context)
 
         val storageRef = FirebaseStorage.getInstance().reference
         val fileRef = storageRef.child("profile_pictures/${UUID.randomUUID()}.jpg")
