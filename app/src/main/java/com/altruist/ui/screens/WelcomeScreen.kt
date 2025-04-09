@@ -26,7 +26,8 @@ fun WelcomeScreen(
     onRegisterClick: () -> Unit
 ) {
     AltruistScreenWrapper (
-        color = BackgroundTop
+        statusBarColor = BackgroundTop,
+        navigationBarColor = BackgroundBottom
     ) {
         Box(
             modifier = Modifier

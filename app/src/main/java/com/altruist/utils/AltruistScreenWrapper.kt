@@ -16,7 +16,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 @Composable
 fun AltruistScreenWrapper(
     modifier: Modifier = Modifier,
-    color: Color,
+    statusBarColor: Color,
+    navigationBarColor: Color,
     useDarkIcons: Boolean = true,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable BoxScope.() -> Unit
@@ -24,8 +25,13 @@ fun AltruistScreenWrapper(
     val systemUiController = rememberSystemUiController()
 
     SideEffect {
+        systemUiController.setNavigationBarColor(
+            color = navigationBarColor,
+            darkIcons = true // o false si quieres iconos blancos
+        )
+
         systemUiController.setStatusBarColor(
-            color = color,
+            color = statusBarColor,
             darkIcons = useDarkIcons
         )
     }

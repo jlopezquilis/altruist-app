@@ -90,7 +90,8 @@ fun CreatePostScreen1(
     }
 
     AltruistScreenWrapper (
-        color = White
+        statusBarColor = White,
+        navigationBarColor = White
     ) {
         Scaffold(
             snackbarHost = {
