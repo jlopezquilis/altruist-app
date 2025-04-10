@@ -17,6 +17,8 @@ import androidx.navigation.navigation
 import com.altruist.ui.screens.LoginScreen
 import com.altruist.ui.screens.create_post.CreatePostScreen1
 import com.altruist.ui.screens.create_post.CreatePostScreen2
+import com.altruist.ui.screens.create_post.CreatePostScreen3
+import com.altruist.ui.screens.create_post.CreatePostScreen4
 import com.altruist.ui.screens.main.MainMenuScreen
 import com.altruist.ui.screens.register.RegisterScreen1
 import com.altruist.ui.screens.register.RegisterScreen2
@@ -54,6 +56,7 @@ object NavRoutes {
     const val CreatePost1 = "createPost1"
     const val CreatePost2 = "createPost2"
     const val CreatePost3 = "createPost3"
+    const val CreatePost4 = "createPost4"
 }
 
 
@@ -202,6 +205,32 @@ fun AltruistApp() {
                         viewModel = viewModel,
                         onPost2Success = {
                             navController.navigate(NavRoutes.CreatePost3)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.CreatePost3) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    CreatePostScreen3(
+                        viewModel = viewModel,
+                        onPost3Success = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.CreatePost4) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    CreatePostScreen4(
+                        viewModel = viewModel,
+                        onPost4Success = {
+                            navController.navigate(NavRoutes.MAINMENU)
                         }
                     )
                 }

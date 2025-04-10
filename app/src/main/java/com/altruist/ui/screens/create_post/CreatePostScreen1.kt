@@ -32,6 +32,8 @@ import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.DropDownCategoryBorderedAltruist
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.Gray
+import com.altruist.ui.theme.LightGray
 import com.altruist.ui.theme.Shapes
 import com.altruist.ui.theme.White
 import com.altruist.ui.theme.YellowDark
@@ -52,6 +54,7 @@ fun CreatePostScreen1(
     val categorias by viewModel.categories.collectAsState()
 
     val isLoading by viewModel.isLoading.collectAsState()
+
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
@@ -172,16 +175,18 @@ fun CreatePostScreen1(
                                                 .size(90.dp)
                                                 .clip(Shapes.medium)
                                         )
+                                        Spacer(modifier = Modifier.height(20.dp))
                                         IconButton(
                                             onClick = { viewModel.removeImage(uri) },
                                             modifier = Modifier
-                                                .size(32.dp)
-                                                .background(YellowDark, shape = CircleShape)
+                                                .size(40.dp)
+                                                .background(LightGray, shape = CircleShape)
                                         ) {
                                             Icon(
-                                                Icons.Default.Delete,
+                                                painter = painterResource(id = R.drawable.ic_delete),
                                                 contentDescription = "Eliminar",
-                                                tint = Color.Black
+                                                modifier = Modifier
+                                                    .size(20.dp)
                                             )
                                         }
                                     }
@@ -199,7 +204,7 @@ fun CreatePostScreen1(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Image(
-                                            painter = painterResource(id = R.drawable.ic_add),
+                                            painter = painterResource(id = R.drawable.ic_add_gray),
                                             contentDescription = "Añadir",
                                             modifier = Modifier.size(36.dp)
                                         )

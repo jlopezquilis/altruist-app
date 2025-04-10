@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val Gray = Color.Gray
+val LightGray = Color(0xFFD4D4D4)
 val BorderYellow = Color (0xFFCD8400)   //Reborde Campos
 val YellowDark = Color(0xFFDFA63D)  // Botón principal (Iniciar sesión)
 val YellowLight = Color(0xFFEAD6B1) // Botón secundario (Registrarse)

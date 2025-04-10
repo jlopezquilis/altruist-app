@@ -1,6 +1,7 @@
 package com.altruist.viewmodel
 
 import android.content.Context
+import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,13 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import android.location.Geocoder
+import android.location.Address
+import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.google.android.gms.maps.model.LatLng
 
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
@@ -43,6 +51,12 @@ class CreatePostViewModel @Inject constructor(
     private val _status = MutableStateFlow("")
     val status: StateFlow<String> = _status
 
+    private val _latitude = MutableStateFlow<Double?>(null)
+    val latitude: StateFlow<Double?> = _latitude
+
+    private val _longitude = MutableStateFlow<Double?>(null)
+    val longitude: StateFlow<Double?> = _longitude
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -51,6 +65,12 @@ class CreatePostViewModel @Inject constructor(
 
     private val _createPost2Success = MutableStateFlow(false)
     val createPost2Success: StateFlow<Boolean> = _createPost2Success
+
+    private val _createPost3Success = MutableStateFlow(false)
+    val createPost3Success: StateFlow<Boolean> = _createPost3Success
+
+    private val _createPost4Success = MutableStateFlow(false)
+    val createPost4Success: StateFlow<Boolean> = _createPost4Success
 
     init {
         viewModelScope.launch {
@@ -78,6 +98,17 @@ class CreatePostViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
+    fun onLatitudeChange(value: Double) {
+        _latitude.value = value
+        _errorMessage.value = null
+    }
+
+    fun onLongitudeChange(value: Double) {
+        _longitude.value = value
+        _errorMessage.value = null
+    }
+
+
     fun clearError() {
         _errorMessage.value = null
     }
@@ -86,16 +117,16 @@ class CreatePostViewModel @Inject constructor(
         _imageUris.value = _imageUris.value + uri
     }
 
-  fun removeImage(uri: Uri) {
+    fun removeImage(uri: Uri) {
         _imageUris.value = _imageUris.value - uri
     }
 
     fun isDataScreen1Valid(): Boolean {
-        return _title.value.isNotBlank() && _category.value.isNotBlank()
+        return !_isLoading.value && _title.value.isNotBlank() && _category.value.isNotBlank()
     }
 
     fun isDataScreen2Valid(): Boolean {
-        return _description.value.isNotBlank() && _status.value.isNotBlank()
+        return !_isLoading.value && _description.value.isNotBlank() && _status.value.isNotBlank()
     }
 
     fun onAddImageClick(uri: Uri?) {
@@ -158,6 +189,40 @@ class CreatePostViewModel @Inject constructor(
     }
 
 
+    // Función para buscar la ubicación por dirección
+    fun searchLocation(query: String, geocoder: Geocoder, onResult: (LatLng?) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val addresses: List<Address>? = geocoder.getFromLocationName(query, 1)
+
+                if (addresses != null) {
+                    if (addresses.isNotEmpty()) {
+                        val location = addresses?.get(0)
+                        val latLng = location?.let { LatLng(it.latitude, location.longitude) }
+                        // Actualizamos latitud y longitud
+                        if (location != null) {
+                            _latitude.value = location.latitude
+                        }
+                        if (location != null) {
+                            _longitude.value = location.longitude
+                        }
+                        withContext(Dispatchers.Main) {
+                            onResult(latLng)
+                        }
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            onResult(null)  // Si no encontramos la ubicación, devolvemos null
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    onResult(null)  // En caso de error, devolvemos null
+                }
+            }
+        }
+    }
+
     fun onContinueFromCreatePost1Click(context: Context) {
         when {
             _title.value.isBlank() || _category.value.isBlank() -> {
@@ -192,11 +257,32 @@ class CreatePostViewModel @Inject constructor(
         }
     }
 
+    fun onContinueFromCreatePost3Click() {
+        when {
+            //Lógica
+            else -> {
+                _createPost3Success.value = true
+            }
+        }
+    }
+
+    fun onContinueFromCreatePost4Click() {
+        when {
+            //Lógica
+            else -> {
+                _createPost4Success.value = true
+            }
+        }
+    }
+
     fun resetCreatePost1Success() {
         _createPost1Success.value = false
     }
     fun resetCreatePost2Success() {
         _createPost2Success.value = false
+    }
+    fun resetCreatePost3Success() {
+        _createPost3Success.value = false
     }
 }
 
