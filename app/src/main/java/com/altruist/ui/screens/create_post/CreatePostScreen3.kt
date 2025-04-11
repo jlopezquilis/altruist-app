@@ -60,12 +60,10 @@ fun CreatePostScreen3(
     var searchQuery by remember { mutableStateOf("") }
     var searchResult by remember { mutableStateOf<LatLng?>(null) }
 
-    // Valencia ubicación por defecto
-    val valenciaLatLng = LatLng(39.4699, -0.3763)
-    // Inicializa el mapa con Valencia o la ubicación actual del ViewModel
-    val initialLatLng = if (latitude == 0.0 && longitude == 0.0) valenciaLatLng else LatLng(latitude, longitude)
-
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val valenciaLatLng = LatLng(39.4699, -0.3763)
+    val initialLatLng = if (latitude == 0.0 && longitude == 0.0) valenciaLatLng else LatLng(latitude, longitude)
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(initialLatLng, 12f)
@@ -73,8 +71,7 @@ fun CreatePostScreen3(
 
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
-            context,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
+            context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -85,29 +82,38 @@ fun CreatePostScreen3(
                     val userLatLng = LatLng(it.latitude, it.longitude)
                     searchResult = userLatLng
                     viewModel.onLocationSelected(it.latitude, it.longitude)
-
-                    coroutineScope.launch {
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(userLatLng, 15f)
-                        )
-                    }
                 }
             }
         } else {
-            // Pedir permisos al usuario
             ActivityCompat.requestPermissions(
                 context as Activity,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 1001
             )
         }
     }
 
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isNotBlank()) {
+            kotlinx.coroutines.delay(500)
+            viewModel.searchLocation(searchQuery, geocoder) { result ->
+                searchResult = result
+                result?.let { viewModel.onLocationSelected(it.latitude, it.longitude) }
+            }
+        }
+    }
 
+    // Actualizar mapa cuando cambian lat/lon
+    LaunchedEffect(latitude, longitude) {
+        val newPosition = LatLng(latitude, longitude)
+        cameraPositionState.animate(
+            CameraUpdateFactory.newLatLng(newPosition)
+        )
+    }
 
     LaunchedEffect(errorMessage) {
-        if (!errorMessage.isNullOrBlank()) {
-            snackbarHostState.showSnackbar(errorMessage!!)
+        errorMessage?.let {
+            SnackbarHostState().showSnackbar(it)
         }
     }
 
@@ -116,15 +122,6 @@ fun CreatePostScreen3(
             viewModel.resetCreatePost3Success()
             viewModel.clearError()
             onPost3Success()
-        }
-    }
-
-    // Cuando encuentra ubicación nueva
-    LaunchedEffect(searchResult) {
-        searchResult?.let { latLng ->
-            cameraPositionState.animate(
-                CameraUpdateFactory.newLatLngZoom(latLng, 15f)
-            )
         }
     }
 
@@ -156,7 +153,7 @@ fun CreatePostScreen3(
                         .padding(bottom = 30.dp)
                 ) {
                     DoubleTitleForTextField(
-                        title1 = "¿Dónde quieres publicarlo?",
+                        title1 = "¿Dónde quieres donarlo?",
                         title2 = "Elige una ubicación"
                     )
                 }
@@ -188,7 +185,7 @@ fun CreatePostScreen3(
                         placeholder = "Buscar ubicación",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 20.dp)
+                            .padding(horizontal = 40.dp, vertical = 20.dp)
                             .align(Alignment.TopCenter),
                         height = 56.dp
                     )
@@ -200,7 +197,7 @@ fun CreatePostScreen3(
                             .padding(20.dp)
                             .size(48.dp) // tamaño del botón redondo
                             .clip(CircleShape)
-                            .background(Color.White)
+                            .background(Color.White.copy(alpha = 0.7f))
                     ) {
                         Icon(
                             imageVector = Icons.Default.LocationOn,

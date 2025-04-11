@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -54,6 +55,8 @@ fun CreatePostScreen1(
     val createPost1Success by viewModel.createPost1Success.collectAsState()
     val categories by sharedViewModel.categories.collectAsState()
 
+    val listState = rememberLazyListState()
+
     val isLoading by viewModel.isLoading.collectAsState()
 
     val context = LocalContext.current
@@ -83,6 +86,10 @@ fun CreatePostScreen1(
             viewModel.clearError()
             onPost1Success()
         }
+    }
+
+    LaunchedEffect(imageUris.size) {
+        listState.animateScrollToItem(imageUris.size)
     }
 
     AltruistScreenWrapper (
@@ -163,7 +170,9 @@ fun CreatePostScreen1(
                                 title2 = "Muéstrale al mundo qué quieres donar"
                             )
 
-                            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            LazyRow(
+                                state = listState,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 items(imageUris) { uri ->
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally

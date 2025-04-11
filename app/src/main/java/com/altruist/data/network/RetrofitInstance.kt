@@ -7,9 +7,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 //Aqui creamos la instancia (cuando se requiera, por eso el lazy) de Retrofit. Es en el builder donde Retrofit creará las implementaciones de las funciones que hemos puesto en ApiService
 object RetrofitInstance {
     //LOCALHOST para emulador (Android Studio)
-    //private const val BASE_URL = "http://10.0.2.2:8080/"
+    private const val BASE_URL = "http://10.0.2.2:8080/"
     //GOOGLE CLOUD API
-    private const val BASE_URL = "https://altruist-api-206922921928.europe-west1.run.app"
+    //private const val BASE_URL = "https://altruist-api-206922921928.europe-west1.run.app"
 
 
     //lazy means its only initialized the first time its used

@@ -81,7 +81,11 @@ class CreatePostViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            //loadCategories()
+            //Ubicación por defecto en mapa: Valencia
+            if (_latitude.value == 0.0 && _longitude.value == 0.0) {
+                _latitude.value = 39.4699
+                _longitude.value = -0.3763
+            }
             val user = userSession.getUser().first()
             _userId.value = user?.id_user
         }

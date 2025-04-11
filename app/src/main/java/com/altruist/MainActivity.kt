@@ -69,7 +69,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.Welcome
+            startDestination = NavRoutes.CreatePostGraph
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
