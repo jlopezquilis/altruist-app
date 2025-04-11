@@ -55,7 +55,7 @@ fun CreatePostScreen4(
 
     LaunchedEffect(createPost4Success) {
         if (createPost4Success) {
-            viewModel.resetCreatePost3Success()
+            viewModel.resetCreatePost4Success()
             viewModel.clearError()
             onPost4Success()
         }
@@ -104,12 +104,7 @@ fun CreatePostScreen4(
 
                     SecondaryButton(
                         text = "Volver a Inicio",
-                        onClick = {
-                            viewModel.clearError()
-                            coroutineScope.launch {
-                                viewModel.onContinueFromCreatePost4Click()
-                            }
-                        },
+                        onClick = {viewModel.onContinueFromCreatePost4Click()},
                         modifier = Modifier.fillMaxWidth(),
                         enabled = true
                     )

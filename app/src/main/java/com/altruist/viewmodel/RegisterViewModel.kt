@@ -172,6 +172,7 @@ class RegisterViewModel @Inject constructor(
         return android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()
     }
 
+    //Suspend por isUsernameAvailable(), que se ha decidido no llamar directamente a launch en esa funcion
     suspend fun onContinueFromRegister1Click() {
         when {
             _name.value.isBlank() ||
@@ -200,7 +201,7 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-
+    //Suspend por isEmailAvailable(), que se ha decidido no llamar directamente a launch en esa funcion
     suspend fun onContinueFromRegister2Click() {
         when {
             _email.value.isBlank() || _password.value.isBlank() || _repeatPassword.value.isBlank() -> {
@@ -273,8 +274,7 @@ class RegisterViewModel @Inject constructor(
             .addOnSuccessListener {
                 fileRef.downloadUrl
                     .addOnSuccessListener { downloadUri ->
-                        val imageUrl = downloadUri
-                        _profilePictureUri.value = imageUrl
+                        _profilePictureUrlString.value = downloadUri.toString()
                         onSuccess()
                     }
                     .addOnFailureListener {
@@ -291,26 +291,46 @@ class RegisterViewModel @Inject constructor(
     }
 
     fun onContinueFromRegister5Click(context: Context) {
-        _isLoading.value = true
-        uploadProfileImage(
-            context = context,
-            onSuccess = {
-                _profilePictureUrlString.value = _profilePictureUri.value.toString()
-            },
-            onError = { error ->
-                showError(error)
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            var errorMessage: String? = null
+
+            // 1. Subir imagen de perfil
+            val uploadImageResult = kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
+                uploadProfileImage(
+                    context = context,
+                    onSuccess = { cont.resume(Result.success(Unit)) {} },
+                    onError = { error -> cont.resume(Result.failure(Exception(error))) {} }
+                )
             }
-        )
-        registerUser(
-            onSuccess = {
-            },
-            onError = { error ->
-                showError(error)
+
+            if (uploadImageResult.isFailure) {
+                errorMessage = uploadImageResult.exceptionOrNull()?.message ?: "Error al subir imagen"
+            } else {
+                // 2. Crear usuario si la imagen se ha subido bien
+                val registerUserResult = kotlinx.coroutines.suspendCancellableCoroutine<Result<Unit>> { cont ->
+                    registerUser(
+                        onSuccess = { cont.resume(Result.success(Unit)) {} },
+                        onError = { error -> cont.resume(Result.failure(Exception(error))) {} }
+                    )
+                }
+
+                if (registerUserResult.isFailure) {
+                    errorMessage = registerUserResult.exceptionOrNull()?.message ?: "Error al registrar usuario"
+                }
             }
-        )
-        _isLoading.value = false
-        _register5Success.value = true
+
+            _isLoading.value = false
+
+            if (errorMessage == null) {
+                _register5Success.value = true
+            } else {
+                showError(errorMessage)
+            }
+        }
     }
+
 
     fun registerUser(
         onSuccess: () -> Unit,

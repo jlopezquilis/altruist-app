@@ -35,6 +35,8 @@ fun CreatePostScreen3(
     val latitude by viewModel.latitude.collectAsState()  // Latitud
     val longitude by viewModel.longitude.collectAsState()  // Longitud
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     val createPost3Success by viewModel.createPost3Success.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -158,14 +160,10 @@ fun CreatePostScreen3(
                     Spacer(modifier = Modifier.weight(0.1f))
 
                     SecondaryButton(
-                        text = "Continuar",
-                        onClick = {
-                            coroutineScope.launch {
-                                viewModel.onContinueFromCreatePost3Click()
-                            }
-                        },
+                        text = if (isLoading) "Cargando..." else "Continuar",
+                        onClick = {viewModel.onContinueFromCreatePost3Click()},
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = latitude != null && longitude != null
+                        enabled = !isLoading
                     )
 
                     Spacer(modifier = Modifier.weight(0.1f))

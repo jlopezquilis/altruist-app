@@ -1,7 +1,6 @@
 package com.altruist.viewmodel
 
 import android.content.Context
-import android.location.Location
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,26 +14,34 @@ import java.util.UUID
 import javax.inject.Inject
 import android.location.Geocoder
 import android.location.Address
-import androidx.compose.runtime.mutableStateOf
+import com.altruist.data.datastore.UserSession
+import com.altruist.data.network.dto.post.CreatePostRequest
+import com.altruist.data.repository.PostRepository
+import com.altruist.utils.enums.PostStatus
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.google.android.gms.maps.model.LatLng
 
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val postRepository: PostRepository,
+    private val userSession: UserSession
 ) : ViewModel() {
+
+    private val _userId = MutableStateFlow<Long?>(null)
+    val userId: StateFlow<Long?> = _userId
+
 
     private val _title = MutableStateFlow("")
     val title: StateFlow<String> = _title
 
     // Lista de categorías (Tipo Category)
-    private val _categories = MutableStateFlow<List<Category>>(emptyList())
-    val categories: StateFlow<List<Category>> = _categories
+    //private val _categories = MutableStateFlow<List<Category>>(emptyList())
+    //val categories: StateFlow<List<Category>> = _categories
 
-    private val _category = MutableStateFlow("")
-    val category: StateFlow<String> = _category
+    private val _category = MutableStateFlow(Category(0, "", "", ""))
+    val category: StateFlow<Category> = _category
 
     private val _imageUris = MutableStateFlow<List<Uri>>(emptyList())
     val imageUris: StateFlow<List<Uri>> = _imageUris
@@ -48,13 +55,13 @@ class CreatePostViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description
 
-    private val _status = MutableStateFlow("")
-    val status: StateFlow<String> = _status
+    private val _quality = MutableStateFlow("")
+    val quality: StateFlow<String> = _quality
 
-    private val _latitude = MutableStateFlow<Double?>(null)
+    private val _latitude = MutableStateFlow<Double>(0.0)
     val latitude: StateFlow<Double?> = _latitude
 
-    private val _longitude = MutableStateFlow<Double?>(null)
+    private val _longitude = MutableStateFlow<Double>(0.0)
     val longitude: StateFlow<Double?> = _longitude
 
     private val _errorMessage = MutableStateFlow<String?>(null)
@@ -74,7 +81,9 @@ class CreatePostViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            loadCategories()
+            //loadCategories()
+            val user = userSession.getUser().first()
+            _userId.value = user?.id_user
         }
     }
 
@@ -83,7 +92,7 @@ class CreatePostViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
-    fun onCategoryChange(value: String) {
+    fun onCategoryChange(value: Category) {
         _category.value = value
         _errorMessage.value = null
     }
@@ -94,7 +103,7 @@ class CreatePostViewModel @Inject constructor(
     }
 
     fun onStateChange(value: String) {
-        _status.value = value
+        _quality.value = value
         _errorMessage.value = null
     }
 
@@ -108,6 +117,9 @@ class CreatePostViewModel @Inject constructor(
         _errorMessage.value = null
     }
 
+    fun showError(message: String) {
+        _errorMessage.value = message
+    }
 
     fun clearError() {
         _errorMessage.value = null
@@ -122,11 +134,11 @@ class CreatePostViewModel @Inject constructor(
     }
 
     fun isDataScreen1Valid(): Boolean {
-        return !_isLoading.value && _title.value.isNotBlank() && _category.value.isNotBlank()
+        return !_isLoading.value && _title.value.isNotBlank() && _category.value.name.isNotBlank()
     }
 
     fun isDataScreen2Valid(): Boolean {
-        return !_isLoading.value && _description.value.isNotBlank() && _status.value.isNotBlank()
+        return !_isLoading.value && _description.value.isNotBlank() && _quality.value.isNotBlank()
     }
 
     fun onAddImageClick(uri: Uri?) {
@@ -146,7 +158,6 @@ class CreatePostViewModel @Inject constructor(
             return
         }
 
-        _isLoading.value = true
         val storageRef = FirebaseStorage.getInstance().reference
         val urls = mutableListOf<String>()
 
@@ -162,31 +173,30 @@ class CreatePostViewModel @Inject constructor(
                             uploadedCount++
                             if (uploadedCount == uris.size) {
                                 _uploadedImageUrls.value = urls
-                                _isLoading.value = false
                                 onSuccess()
                             }
                         }
                         .addOnFailureListener {
-                            _isLoading.value = false
                             onError("Error al obtener la URL de la imagen")
                         }
                 }
                 .addOnFailureListener {
-                    _isLoading.value = false
                     onError("Error al subir imagen: ${it.message}")
                 }
         }
     }
 
+    /*
     suspend fun loadCategories() {
         _isLoading.value = true
         val result = categoryRepository.getAllCategories()
         _isLoading.value = false
         result.onSuccess { categories ->
-            _categories.value = categories
+            this.categories.value = categories
         }.onFailure {
             _errorMessage.value = "Error al cargar las categorías: ${it.message}"}
     }
+     */
 
 
     // Función para buscar la ubicación por dirección
@@ -225,7 +235,7 @@ class CreatePostViewModel @Inject constructor(
 
     fun onContinueFromCreatePost1Click(context: Context) {
         when {
-            _title.value.isBlank() || _category.value.isBlank() -> {
+            _title.value.isBlank() || _category.value.name.isBlank() -> {
                 _errorMessage.value = "Por favor, completa todos los campos."
             }
 
@@ -237,7 +247,7 @@ class CreatePostViewModel @Inject constructor(
                         _isLoading.value = false
                     },
                     onError = { error ->
-                        _errorMessage.value = error
+                        showError(error)
                         _isLoading.value = false
                     }
                 )
@@ -247,7 +257,7 @@ class CreatePostViewModel @Inject constructor(
 
     fun onContinueFromCreatePost2Click() {
         when {
-            _description.value.isBlank() || _status.value.isBlank() -> {
+            _description.value.isBlank() || _quality.value.isBlank() -> {
                 _errorMessage.value = "Por favor, completa todos los campos."
             }
 
@@ -258,22 +268,54 @@ class CreatePostViewModel @Inject constructor(
     }
 
     fun onContinueFromCreatePost3Click() {
-        when {
-            //Lógica
-            else -> {
-                _createPost3Success.value = true
+        if (_latitude.value.toString().isBlank() || _longitude.value.toString().isBlank()) {
+                _errorMessage.value = "Selecciona una ubicación."
+        }
+        else  {
+            _isLoading.value = true
+            uploadPost(
+                onSuccess = {
+                },
+                onError = { error ->
+                    showError(error)
+                }
+            )
+            _isLoading.value = false
+            _createPost3Success.value = true
+        }
+    }
+
+
+    fun onContinueFromCreatePost4Click() {
+        _createPost4Success.value = true
+    }
+
+    fun uploadPost(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val post = CreatePostRequest(
+            title = _title.value,
+            description = _description.value,
+            status = PostStatus.PUBLISHED.toString(),
+            quality = _quality.value,
+            latitude = _latitude.value,
+            longitude = _longitude.value,
+            id_category = _category.value.id_category,
+            id_user = _userId.value!!, //Viene de UserSession (user logged)
+            imageUrls = _uploadedImageUrls.value
+        )
+
+        viewModelScope.launch {
+            val result = postRepository.createPost(post)
+            result.onSuccess {
+                onSuccess()
+            }.onFailure {
+                onError("Error al crear publicación: ${it.message}")
             }
         }
     }
 
-    fun onContinueFromCreatePost4Click() {
-        when {
-            //Lógica
-            else -> {
-                _createPost4Success.value = true
-            }
-        }
-    }
 
     fun resetCreatePost1Success() {
         _createPost1Success.value = false
@@ -283,6 +325,9 @@ class CreatePostViewModel @Inject constructor(
     }
     fun resetCreatePost3Success() {
         _createPost3Success.value = false
+    }
+    fun resetCreatePost4Success() {
+        _createPost4Success.value = false
     }
 }
 

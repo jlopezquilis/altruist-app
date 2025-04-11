@@ -12,11 +12,10 @@ import com.altruist.ui.components.AltruistBorderedTextField
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.DropDownBorderedAltruist
-import com.altruist.ui.components.DropDownCategoryBorderedAltruist
 import com.altruist.ui.components.SecondaryButton
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
-import com.altruist.utils.enums.PostStatus
+import com.altruist.utils.enums.PostQuality
 import com.altruist.viewmodel.CreatePostViewModel
 import kotlinx.coroutines.launch
 
@@ -26,7 +25,7 @@ fun CreatePostScreen2(
     onPost2Success: () -> Unit
 ) {
     val description by viewModel.description.collectAsState()
-    val status by viewModel.status.collectAsState()
+    val status by viewModel.quality.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val createPost2Success by viewModel.createPost2Success.collectAsState()
 
@@ -99,19 +98,19 @@ fun CreatePostScreen2(
                             )
                         }
 
-                        // Estado del artículo
+                        // Calidad del artículo
                         Column {
                             DoubleTitleForTextField(
                                 title1 = "¿Cuál es el estado de tu artículo?",
-                                title2 = "Elige entre las siguientes opciones"
+                                title2 = "Elige entre las siguientes opciones de calidad"
                             )
 
                             var expanded by remember { mutableStateOf(false) }
 
                             DropDownBorderedAltruist(
                                 itemSelected = status,
-                                items = PostStatus.allStatuses,
-                                placeholderText = "Estado",
+                                items = PostQuality.allQualities,
+                                placeholderText = "Calidad",
                                 expanded = expanded,
                                 onExpandedChange = { expanded = it },
                                 onItemSelected = { selectedStatus ->
@@ -126,11 +125,7 @@ fun CreatePostScreen2(
 
                     SecondaryButton(
                         text = "Continuar",
-                        onClick = {
-                            coroutineScope.launch {
-                                viewModel.onContinueFromCreatePost2Click()
-                            }
-                        },
+                        onClick = {viewModel.onContinueFromCreatePost2Click()},
                         modifier = Modifier.fillMaxWidth(),
                         enabled = viewModel.isDataScreen2Valid()
                     )

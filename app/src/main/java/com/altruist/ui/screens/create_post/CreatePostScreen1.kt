@@ -12,8 +12,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.altruist.R
 import com.altruist.ui.components.AltruistBorderedTextField
@@ -32,13 +31,13 @@ import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.DropDownCategoryBorderedAltruist
 import com.altruist.ui.components.SecondaryButton
-import com.altruist.ui.theme.Gray
 import com.altruist.ui.theme.LightGray
 import com.altruist.ui.theme.Shapes
 import com.altruist.ui.theme.White
 import com.altruist.ui.theme.YellowDark
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.CreatePostViewModel
+import com.altruist.viewmodel.SharedViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -46,12 +45,14 @@ fun CreatePostScreen1(
     viewModel: CreatePostViewModel,
     onPost1Success: () -> Unit
 ) {
+    val sharedViewModel: SharedViewModel = hiltViewModel()
+
     val title by viewModel.title.collectAsState()
     val category by viewModel.category.collectAsState()
     val imageUris by viewModel.imageUris.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val createPost1Success by viewModel.createPost1Success.collectAsState()
-    val categorias by viewModel.categories.collectAsState()
+    val categories by sharedViewModel.categories.collectAsState()
 
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -147,7 +148,7 @@ fun CreatePostScreen1(
                             
                             DropDownCategoryBorderedAltruist(
                                 category = category,
-                                categorias = categorias,
+                                categories = categories,
                                 expanded = expanded,
                                 onExpandedChange = { expanded = it },
                                 onCategorySelected = { selectedCategory ->
@@ -218,14 +219,9 @@ fun CreatePostScreen1(
 
                     SecondaryButton(
                         text = if (isLoading) "Cargando..." else "Continuar",
-                        onClick = {
-                            viewModel.clearError()
-                            coroutineScope.launch {
-                                viewModel.onContinueFromCreatePost1Click(context)
-                            }
-                        },
+                        onClick = {viewModel.onContinueFromCreatePost1Click(context)},
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = viewModel.isDataScreen1Valid() && !isLoading
+                        enabled = !isLoading && viewModel.isDataScreen1Valid()
                     )
 
                     Spacer(modifier = Modifier.weight(0.1f))

@@ -27,6 +27,7 @@ import com.altruist.ui.screens.register.RegisterScreen4
 import com.altruist.ui.screens.register.RegisterScreen5
 import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.RegisterViewModel
+import com.altruist.viewmodel.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,7 +35,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AltruistApp()
+            val sharedViewModel: SharedViewModel = hiltViewModel()
+            AltruistApp(sharedViewModel)
         }
     }
 }
@@ -61,13 +63,13 @@ object NavRoutes {
 
 
 @Composable
-fun AltruistApp() {
+fun AltruistApp(sharedViewModel: SharedViewModel) {
     val navController = rememberNavController()
 
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.CreatePostGraph
+            startDestination = NavRoutes.Welcome
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
@@ -114,7 +116,7 @@ fun AltruistApp() {
                     RegisterScreen2(
                         viewModel = viewModel,
                         onRegister2Success = {
-                            //navController.navigate(NavRoutes.Register3)
+                            navController.navigate(NavRoutes.Register3)
                         }
                     )
                 }

@@ -20,11 +20,11 @@ import com.altruist.ui.theme.YellowDark
 
 @Composable
 fun DropDownCategoryBorderedAltruist(
-    category: String,
-    categorias: List<Category>, // Asegúrate de que Category tenga una propiedad `name`
+    category: Category,
+    categories: List<Category>, // Asegúrate de que Category tenga una propiedad `name`
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onCategorySelected: (String) -> Unit,
+    onCategorySelected: (Category) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -42,19 +42,19 @@ fun DropDownCategoryBorderedAltruist(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = if (category.isEmpty()) "Categoría" else category,
+                text = if (category.name.isEmpty()) "Categoría" else category.name,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (category.isEmpty()) Color.Gray.copy(alpha = 0.5f) else Color.Black
+                color = if (category.name.isEmpty()) Color.Gray.copy(alpha = 0.5f) else Color.Black
             )
             Icon(Icons.Default.ArrowDropDown, contentDescription = null)
         }
 
         DropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }) {
-            categorias.forEach { categoria ->
+            categories.forEach { category ->
                 DropdownMenuItem(
-                    text = { Text(categoria.name) },
+                    text = { Text(category.name) },
                     onClick = {
-                        onCategorySelected(categoria.name)
+                        onCategorySelected(category)
                         onExpandedChange(false)
                     }
                 )
