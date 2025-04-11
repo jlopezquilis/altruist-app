@@ -59,10 +59,10 @@ class CreatePostViewModel @Inject constructor(
     val quality: StateFlow<String> = _quality
 
     private val _latitude = MutableStateFlow<Double>(0.0)
-    val latitude: StateFlow<Double?> = _latitude
+    val latitude: StateFlow<Double> = _latitude
 
     private val _longitude = MutableStateFlow<Double>(0.0)
-    val longitude: StateFlow<Double?> = _longitude
+    val longitude: StateFlow<Double> = _longitude
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -116,6 +116,12 @@ class CreatePostViewModel @Inject constructor(
         _longitude.value = value
         _errorMessage.value = null
     }
+
+    fun onLocationSelected(lat: Double, lng: Double) {
+        _latitude.value = lat
+        _longitude.value = lng
+    }
+
 
     fun showError(message: String) {
         _errorMessage.value = message

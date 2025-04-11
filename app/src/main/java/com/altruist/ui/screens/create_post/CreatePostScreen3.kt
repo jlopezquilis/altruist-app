@@ -18,6 +18,7 @@ import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.CreatePostViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -32,35 +33,33 @@ fun CreatePostScreen3(
     viewModel: CreatePostViewModel,
     onPost3Success: () -> Unit
 ) {
-    val latitude by viewModel.latitude.collectAsState()  // Latitud
-    val longitude by viewModel.longitude.collectAsState()  // Longitud
+    val latitude by viewModel.latitude.collectAsState()
+    val longitude by viewModel.longitude.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
     val createPost3Success by viewModel.createPost3Success.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val geocoder = Geocoder(context)
 
-    // Estado de la búsqueda
     var searchQuery by remember { mutableStateOf("") }
-
-    // Estado para manejar el resultado de la búsqueda
     var searchResult by remember { mutableStateOf<LatLng?>(null) }
 
-    // Crear Geocoder con el contexto actual
-    val geocoder = Geocoder(LocalContext.current)
+    // Valencia ubicación por defecto
+    val valenciaLatLng = LatLng(39.4699, -0.3763)
+    // Inicializa el mapa con Valencia o la ubicación actual del ViewModel
+    val initialLatLng = if (latitude == 0.0 && longitude == 0.0) valenciaLatLng else LatLng(latitude, longitude)
 
-    // Estado para el enfoque del TextField
-    var textFieldFocused by remember { mutableStateOf(false) }
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(initialLatLng, 12f)
+    }
+
 
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
-            snackbarHostState.showSnackbar(
-                message = errorMessage!!,
-                withDismissAction = true,
-                duration = SnackbarDuration.Long
-            )
+            snackbarHostState.showSnackbar(errorMessage!!)
         }
     }
 
@@ -69,6 +68,15 @@ fun CreatePostScreen3(
             viewModel.resetCreatePost3Success()
             viewModel.clearError()
             onPost3Success()
+        }
+    }
+
+    // Cuando encuentra ubicación nueva
+    LaunchedEffect(searchResult) {
+        searchResult?.let { latLng ->
+            cameraPositionState.animate(
+                CameraUpdateFactory.newLatLngZoom(latLng, 15f)
+            )
         }
     }
 
@@ -114,46 +122,32 @@ fun CreatePostScreen3(
 
                     Spacer(modifier = Modifier.height(25.dp))
 
-                    // Cuando el texto cambia, buscamos la ubicación
                     LaunchedEffect(searchQuery) {
-                        if (searchQuery.isNotEmpty()) {
+                        if (searchQuery.isNotBlank()) {
+                            kotlinx.coroutines.delay(500) // Espera 500ms después de escribir
                             viewModel.searchLocation(searchQuery, geocoder) { result ->
                                 searchResult = result
                             }
                         }
                     }
 
-                    // Mapa
-                    val cameraPositionState = rememberCameraPositionState {
-                        position = CameraPosition.fromLatLngZoom(
-                            LatLng(latitude ?: 39.4699, longitude ?: -0.3763), 10f
-                        )
-                    }
-
                     GoogleMap(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxHeight(0.6f),  // El mapa ocupa toda la pantalla
-                        cameraPositionState = cameraPositionState
-                    ) {
-                        // Detectar si el usuario ha movido el mapa
-                        val currentPosition = cameraPositionState.position.target
-
-                        // Si tenemos un resultado de búsqueda, lo mostramos en el mapa
-                        searchResult?.let { latLng ->
-                            Marker(
-                                state = MarkerState(position = latLng),
-                                title = "Ubicación seleccionada"
-                            )
-
-                            // Si el usuario mueve el mapa, actualizamos el marcador
-                            if (currentPosition != latLng) {
-                                searchResult = LatLng(currentPosition.latitude, currentPosition.longitude)
-                            }
-
-                            // Actualizamos la cámara para centrar el mapa en la nueva ubicación
-                            cameraPositionState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
+                            .fillMaxHeight(0.6f),
+                        cameraPositionState = cameraPositionState,
+                        onMapClick = { latLng ->
+                            searchResult = latLng
+                            viewModel.onLocationSelected(latLng.latitude, latLng.longitude)
                         }
+                    ) {
+                        val markerPosition = searchResult ?: LatLng(latitude, longitude)
+
+                        Marker(
+                            state = MarkerState(position = markerPosition),
+                            title = "Ubicación seleccionada"
+                        )
+
                     }
 
 
