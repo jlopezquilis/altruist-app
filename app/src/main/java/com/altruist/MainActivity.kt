@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.ui.screens.WelcomeScreen
 import com.altruist.ui.theme.AltruistTheme
@@ -14,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.altruist.ui.screens.LocationPermissionScreen
 import com.altruist.ui.screens.LoginScreen
 import com.altruist.ui.screens.create_post.CreatePostScreen1
 import com.altruist.ui.screens.create_post.CreatePostScreen2
@@ -25,8 +27,12 @@ import com.altruist.ui.screens.register.RegisterScreen2
 import com.altruist.ui.screens.register.RegisterScreen3
 import com.altruist.ui.screens.register.RegisterScreen4
 import com.altruist.ui.screens.register.RegisterScreen5
+import com.altruist.ui.screens.search_post.SearchPostScreen1
+import com.altruist.ui.screens.search_post.SearchPostScreen2
+import com.altruist.utils.LocationUtils
 import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.RegisterViewModel
+import com.altruist.viewmodel.SearchPostViewModel
 import com.altruist.viewmodel.SharedViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,6 +50,7 @@ class MainActivity : ComponentActivity() {
 object NavRoutes {
     const val Welcome = "welcome"
     const val Login = "login"
+    const val LocationPermission = "locationPermission"
 
     const val RegisterGraph = "register"
     const val Register1 = "register1"
@@ -59,6 +66,11 @@ object NavRoutes {
     const val CreatePost2 = "createPost2"
     const val CreatePost3 = "createPost3"
     const val CreatePost4 = "createPost4"
+
+    const val SEARCHPOSTGRAPH = "searchPost"
+    const val SEARCHPOST1 = "searchPost1"
+    const val SEARCHPOST2 = "searchPost2"
+
 }
 
 
@@ -69,7 +81,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.Welcome
+            startDestination = NavRoutes.SEARCHPOSTGRAPH
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
@@ -158,7 +170,9 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                     RegisterScreen5(
                         viewModel = viewModel,
                         onRegister5Success = {
-                            navController.navigate(NavRoutes.Welcome)
+                            navController.navigate(NavRoutes.Welcome){
+                                popUpTo(NavRoutes.RegisterGraph) { inclusive = true }
+                            }
                         }
                     )
                 }
@@ -170,7 +184,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.CreatePostGraph)
                         },
                         onBuscarClick = {
-                            navController.navigate(NavRoutes.MAINMENU)
+                            navController.navigate(NavRoutes.SEARCHPOSTGRAPH)
                         },
                         onMisDonacionesClick = {
                             navController.navigate(NavRoutes.MAINMENU)
@@ -232,11 +246,86 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                     CreatePostScreen4(
                         viewModel = viewModel,
                         onPost4Success = {
+                            navController.navigate(NavRoutes.MAINMENU) {
+                                popUpTo(NavRoutes.CreatePostGraph) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+            }
+
+            navigation(
+                startDestination = NavRoutes.SEARCHPOST1,
+                route = NavRoutes.SEARCHPOSTGRAPH
+            ) {
+                composable(NavRoutes.SEARCHPOST1) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.SEARCHPOSTGRAPH)
+                    }
+                    val viewModel: SearchPostViewModel = hiltViewModel(parentEntry)
+                    val context = LocalContext.current
+                    SearchPostScreen1(
+                        viewModel = viewModel,
+                        onSearchPost1Success = {
+                            if (LocationUtils.hasLocationPermission(context)) {
+                                navController.navigate(NavRoutes.SEARCHPOST2)
+                            } else {
+                                navController.navigate(NavRoutes.LocationPermission)
+                            }
+                        }
+                    )
+                }
+
+                composable(NavRoutes.LocationPermission) {
+                    LocationPermissionScreen(
+                        onPermissionResult = { isGranted ->
+                            navController.navigate(NavRoutes.SEARCHPOST2) {
+                                //popUpTo(NavRoutes.SEARCHPOST1) { inclusive = true }
+                            }
+                        }
+                    )
+                }
+
+                composable(NavRoutes.SEARCHPOST2) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.SEARCHPOSTGRAPH)
+                    }
+                    val viewModel: SearchPostViewModel = hiltViewModel(parentEntry)
+                    SearchPostScreen2(
+                        viewModel = viewModel,
+                        onSearchPost2Success = {
+                            navController.navigate(NavRoutes.SEARCHPOST2)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.CreatePost3) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    CreatePostScreen3(
+                        viewModel = viewModel,
+                        onPost3Success = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.CreatePost4) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                    }
+                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
+                    CreatePostScreen4(
+                        viewModel = viewModel,
+                        onPost4Success = {
                             navController.navigate(NavRoutes.MAINMENU)
                         }
                     )
                 }
             }
+
         }
     }
 }

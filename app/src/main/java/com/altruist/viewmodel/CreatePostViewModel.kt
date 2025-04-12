@@ -58,10 +58,10 @@ class CreatePostViewModel @Inject constructor(
     private val _quality = MutableStateFlow("")
     val quality: StateFlow<String> = _quality
 
-    private val _latitude = MutableStateFlow<Double>(0.0)
+    private val _latitude = MutableStateFlow<Double>(39.4699)
     val latitude: StateFlow<Double> = _latitude
 
-    private val _longitude = MutableStateFlow<Double>(0.0)
+    private val _longitude = MutableStateFlow<Double>(-0.3763)
     val longitude: StateFlow<Double> = _longitude
 
     private val _errorMessage = MutableStateFlow<String?>(null)
@@ -82,10 +82,12 @@ class CreatePostViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             //Ubicación por defecto en mapa: Valencia
+            /*
             if (_latitude.value == 0.0 && _longitude.value == 0.0) {
                 _latitude.value = 39.4699
                 _longitude.value = -0.3763
             }
+             */
             val user = userSession.getUser().first()
             _userId.value = user?.id_user
         }

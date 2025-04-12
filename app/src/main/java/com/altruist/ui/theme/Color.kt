@@ -10,6 +10,7 @@ val LightGray = Color(0xFFD4D4D4)
 val BorderYellow = Color (0xFFCD8400)   //Reborde Campos
 val YellowDark = Color(0xFFDFA63D)  // Botón principal (Iniciar sesión)
 val YellowLight = Color(0xFFEAD6B1) // Botón secundario (Registrarse)
+val YellowLight2 = Color(0xFFEDE1CB)  //For lighter than Continuar
 val Brown = Color(0xFF5D2C1D)       // Texto del logo
 
 // Fondo degradado

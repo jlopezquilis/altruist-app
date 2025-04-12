@@ -17,6 +17,9 @@ class SharedViewModel @Inject constructor(
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories
 
+    private val _locationPermissionGranted = MutableStateFlow<Boolean?>(null)
+    val locationPermissionGranted: StateFlow<Boolean?> = _locationPermissionGranted
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -38,4 +41,9 @@ class SharedViewModel @Inject constructor(
             showError("Error inesperado. Reinicia la app porfavor.")
         }
     }
+
+    fun setLocationPermissionGranted(granted: Boolean) {
+        _locationPermissionGranted.value = granted
+    }
+
 }
