@@ -25,9 +25,22 @@ val PublicSans = FontFamily(
 )
 
 val Typography = Typography(
+    bodySmall = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 10.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 14.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = PublicSans,
         fontSize = 15.sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold
     ),
     labelLarge = TextStyle(
         fontFamily = PublicSans,

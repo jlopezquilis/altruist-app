@@ -22,7 +22,9 @@ import androidx.core.content.ContextCompat
 import com.altruist.ui.components.AltruistBorderedShadowedTextField
 import com.altruist.ui.components.AltruistBorderedTextField
 import com.altruist.ui.components.DoubleTitleForTextField
+import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.components.SecondaryButton
+import com.altruist.ui.theme.BorderYellow
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.SearchPostViewModel
@@ -41,6 +43,8 @@ fun SearchPostScreen2(
     viewModel: SearchPostViewModel,
     onSearchPost2Success: () -> Unit
 ) {
+    val searchPost2Success by viewModel.searchPost2Success.collectAsState()
+
     val latitude by viewModel.latitude.collectAsState()
     val longitude by viewModel.longitude.collectAsState()
     val selectedDistanceKm by viewModel.selectedDistanceKm.collectAsState()
@@ -72,11 +76,15 @@ fun SearchPostScreen2(
                 }
             }
         } else {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
+            viewModel.showError("No tenemos permiso para acceder a tu ubicación, pero puedes buscar una localización específica.")
+        }
+    }
+
+    LaunchedEffect(searchPost2Success) {
+        if (searchPost2Success) {
+            viewModel.resetSearchPost2Success()
+            viewModel.clearError()
+            onSearchPost2Success()
         }
     }
 
@@ -149,7 +157,7 @@ fun SearchPostScreen2(
                         )
                     }
 
-                    AltruistBorderedShadowedTextField(
+                    SearchBarAltruist (
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         placeholder = "Busca una localización",
@@ -157,7 +165,9 @@ fun SearchPostScreen2(
                             .fillMaxWidth()
                             .padding(horizontal = 60.dp, vertical = 20.dp)
                             .align(Alignment.TopCenter),
-                        height = 56.dp
+                        backgroundColor = Color.White,
+                        height = 56.dp,
+                        borderWidth = 1.dp
                     )
 
                     IconButton(

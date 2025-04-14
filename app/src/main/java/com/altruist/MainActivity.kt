@@ -29,6 +29,7 @@ import com.altruist.ui.screens.register.RegisterScreen4
 import com.altruist.ui.screens.register.RegisterScreen5
 import com.altruist.ui.screens.search_post.SearchPostScreen1
 import com.altruist.ui.screens.search_post.SearchPostScreen2
+import com.altruist.ui.screens.search_post.SearchPostScreen3
 import com.altruist.utils.LocationUtils
 import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.RegisterViewModel
@@ -70,6 +71,7 @@ object NavRoutes {
     const val SEARCHPOSTGRAPH = "searchPost"
     const val SEARCHPOST1 = "searchPost1"
     const val SEARCHPOST2 = "searchPost2"
+    const val SEARCHPOST3 = "searchPost3"
 
 }
 
@@ -294,21 +296,39 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                     SearchPostScreen2(
                         viewModel = viewModel,
                         onSearchPost2Success = {
-                            navController.navigate(NavRoutes.SEARCHPOST2)
+                            navController.navigate(NavRoutes.SEARCHPOST3)
                         }
                     )
                 }
 
-                composable(NavRoutes.CreatePost3) { backStackEntry ->
+                composable(NavRoutes.SEARCHPOST3) { backStackEntry ->
                     val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
+                        navController.getBackStackEntry(NavRoutes.SEARCHPOSTGRAPH)
                     }
-                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
-                    CreatePostScreen3(
+                    val viewModel: SearchPostViewModel = hiltViewModel(parentEntry)
+                    SearchPostScreen3(
                         viewModel = viewModel,
-                        onPost3Success = {
+                        onPostItemClick = {
                             navController.navigate(NavRoutes.CreatePost4)
-                        }
+                        },
+                        onChangeCategoryClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
+                        onChangeLocationClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
+                        onChangeRangeClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
+                        onMainMenuClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
+                        onDonateClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
+                        onMessagesClick = {
+                            navController.navigate(NavRoutes.CreatePost4)
+                        },
                     )
                 }
 
