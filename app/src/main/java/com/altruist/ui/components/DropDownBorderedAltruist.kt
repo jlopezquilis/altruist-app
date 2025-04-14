@@ -12,10 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.altruist.data.model.Category
 import com.altruist.ui.theme.Shapes
 import com.altruist.ui.theme.White
-import com.altruist.ui.theme.YellowDark
+import com.altruist.ui.theme.DarkYellow
 
 
 @Composable
@@ -32,7 +31,7 @@ fun DropDownBorderedAltruist(
         modifier = modifier
             .fillMaxWidth()
             .background(White, shape = Shapes.medium)
-            .border(1.dp, YellowDark, shape = Shapes.medium)
+            .border(1.dp, DarkYellow, shape = Shapes.medium)
             .height(56.dp)
             .padding(horizontal = 16.dp, vertical = 12.dp)
             .clickable { onExpandedChange(true) }

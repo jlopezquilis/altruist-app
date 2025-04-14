@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.altruist.ui.components.AltruistBorderedShadowedTextField
 import com.altruist.ui.components.AltruistBorderedTextField
+import com.altruist.ui.components.DoubleTitle
 import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.components.SecondaryButton
@@ -131,7 +132,7 @@ fun SearchPostScreen2(
                         .padding(top = 70.dp)
                         .padding(bottom = 30.dp)
                 ) {
-                    DoubleTitleForTextField(
+                    DoubleTitle(
                         title1 = "¿Dónde lo estás buscando?",
                         title2 = "Selecciona una localización y un rango."
                     )

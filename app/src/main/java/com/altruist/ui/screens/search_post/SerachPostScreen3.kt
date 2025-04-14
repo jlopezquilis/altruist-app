@@ -5,23 +5,31 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.altruist.R
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.SearchPostViewModel
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.data.model.Post
+import com.altruist.ui.components.AltruistBottomBar
 import com.altruist.ui.components.DoubleTitle
+import com.altruist.ui.components.FilterSmallButton
 import com.altruist.ui.components.PostItem
 import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.theme.YellowSearchScreen
+import com.google.accompanist.flowlayout.FlowRow
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchPostScreen3(
@@ -38,6 +46,9 @@ fun SearchPostScreen3(
 
     val errorMessage by viewModel.errorMessage.collectAsState()
     val posts by viewModel.filteredPosts.collectAsState()
+
+    val gridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
 
@@ -67,6 +78,18 @@ fun SearchPostScreen3(
                 FloatingActionButton(onClick = { onMessagesClick() }) {
                     Icon(Icons.Default.Call, contentDescription = "Mensajes")
                 }
+            },
+            bottomBar = {
+                AltruistBottomBar(
+                    selected = "Buscar",
+                    onMainMenuClick = onMainMenuClick,
+                    onDonateClick = onDonateClick,
+                    onSearchClick = {
+                        coroutineScope.launch {
+                            gridState.animateScrollToItem(0)
+                        }
+                    }
+                )
             }
         ) { innerPadding ->
 
@@ -88,10 +111,8 @@ fun SearchPostScreen3(
                         value = searchQuery,
                         onValueChange = {
                             searchQuery = it
-                            //Esto de abajo hace falta?
-                            //viewModel.onSearchQueryChange(it)
                         },
-                        placeholder = "Busca una publicación",
+                        placeholder = "Busca algo más concreto",
                         modifier = Modifier
                             .fillMaxWidth(),
                         backgroundColor = YellowSearchScreen,
@@ -101,11 +122,32 @@ fun SearchPostScreen3(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Aquí añadirías los botones de filtros
+                    FlowRow(
+                        mainAxisSpacing = 12.dp,
+                        crossAxisSpacing = 12.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FilterSmallButton(
+                            text = "Muuuuuuuuuuuuebles",
+                            icon = painterResource(id = R.drawable.ic_categories),
+                            onClick = onChangeCategoryClick
+                        )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        FilterSmallButton(
+                            text = "Valeeeeencia",
+                            icon = painterResource(id = R.drawable.ic_location_marker),
+                            onClick = onChangeLocationClick
+                        )
+
+                        FilterSmallButton(
+                            text = "50 km",
+                            icon = painterResource(id = R.drawable.ic_range),
+                            onClick = onChangeRangeClick
+                        )
+                    }
 
                     LazyVerticalGrid(
+                        state = gridState,
                         columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(vertical = 20.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),

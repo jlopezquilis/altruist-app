@@ -37,11 +37,10 @@ import com.altruist.ui.components.SecondaryButton
 import com.altruist.ui.theme.LightGray
 import com.altruist.ui.theme.Shapes
 import com.altruist.ui.theme.White
-import com.altruist.ui.theme.YellowDark
+import com.altruist.ui.theme.DarkYellow
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.SharedViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun CreatePostScreen1(
@@ -211,7 +210,7 @@ fun CreatePostScreen1(
                                         modifier = Modifier
                                             .size(90.dp)
                                             .clip(RoundedCornerShape(12.dp))
-                                            .border(1.dp, YellowDark, shape = Shapes.medium)
+                                            .border(1.dp, DarkYellow, shape = Shapes.medium)
                                             .clickable {
                                                 launcher.launch("image/*")
                                             },
