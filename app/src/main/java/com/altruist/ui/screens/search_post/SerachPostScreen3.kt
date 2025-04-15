@@ -23,6 +23,8 @@ import com.altruist.viewmodel.SearchPostViewModel
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.data.model.Post
 import com.altruist.ui.components.AltruistBottomBar
+import com.altruist.ui.components.CircleButton
+import com.altruist.ui.components.CircleButtonWithoutText
 import com.altruist.ui.components.DoubleTitle
 import com.altruist.ui.components.FilterSmallButton
 import com.altruist.ui.components.PostItem
@@ -74,11 +76,6 @@ fun SearchPostScreen3(
                 )
             },
             containerColor = Color.Transparent,
-            floatingActionButton = {
-                FloatingActionButton(onClick = { onMessagesClick() }) {
-                    Icon(Icons.Default.Call, contentDescription = "Mensajes")
-                }
-            },
             bottomBar = {
                 AltruistBottomBar(
                     selected = "Buscar",
@@ -154,10 +151,24 @@ fun SearchPostScreen3(
                         horizontalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         items(posts) { post ->
-                            PostItem(post = post)
+                            PostItem(
+                                post = post,
+                                onPostItemClick = { onPostItemClick(post) }
+                            )
                         }
                     }
                 }
+                CircleButtonWithoutText(
+                    iconDescription = "Mensajes",
+                    icon = R.drawable.ic_chat,
+                    size = 70.dp,
+                    imageSize = 35.dp,
+                    onClick = onMessagesClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 20.dp, bottom = 20.dp)
+                )
+
             }
         }
     }

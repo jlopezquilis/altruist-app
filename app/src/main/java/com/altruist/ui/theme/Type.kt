@@ -65,6 +65,11 @@ val TitleMediumTextStyle = TextStyle(
     fontWeight = FontWeight.Bold
 )
 
+val BottomMenuTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 12.sp
+)
+
 val TitleSmallTextStyle = TextStyle(
     fontFamily = PublicSans,
     fontSize = 16.sp,

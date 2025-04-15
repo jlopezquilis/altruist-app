@@ -3,6 +3,7 @@ package com.altruist.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.data.model.Category
+import com.altruist.data.model.Post
 import com.altruist.data.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -19,6 +20,9 @@ class SharedViewModel @Inject constructor(
 
     private val _locationPermissionGranted = MutableStateFlow<Boolean?>(null)
     val locationPermissionGranted: StateFlow<Boolean?> = _locationPermissionGranted
+
+    private val _selectedPost = MutableStateFlow<Post?>(null)
+    val selectedPost: StateFlow<Post?> = _selectedPost
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -44,6 +48,10 @@ class SharedViewModel @Inject constructor(
 
     fun setLocationPermissionGranted(granted: Boolean) {
         _locationPermissionGranted.value = granted
+    }
+
+    fun onSelectedPostChange(post: Post) {
+        _selectedPost.value = post
     }
 
 }

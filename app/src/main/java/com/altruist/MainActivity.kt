@@ -83,7 +83,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.SEARCHPOSTGRAPH
+            startDestination = NavRoutes.MAINMENU
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
@@ -306,10 +306,12 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         navController.getBackStackEntry(NavRoutes.SEARCHPOSTGRAPH)
                     }
                     val viewModel: SearchPostViewModel = hiltViewModel(parentEntry)
+                    val sharedViewModel: SharedViewModel = hiltViewModel()
                     SearchPostScreen3(
                         viewModel = viewModel,
-                        onPostItemClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
+                        onPostItemClick = { post ->
+                            sharedViewModel.onSelectedPostChange(post)
+                            navController.navigate(NavRoutes.SEARCHPOST2)
                         },
                         onChangeCategoryClick = {
                             navController.navigate(NavRoutes.CreatePost4)

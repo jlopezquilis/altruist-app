@@ -28,15 +28,17 @@ import com.altruist.ui.theme.YellowSearchScreen
 @Composable
 fun PostItem(
     post: Post,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPostItemClick: (Post) -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .shadow(8.dp, Shapes.medium)
+            .clickable {onPostItemClick(post)}
+            .shadow(elevation = 8.dp, shape = Shapes.medium)
             .background(YellowSearchScreen)
             .padding(16.dp)
-            //.clickable()
+
     ) {
         Column(
             modifier = modifier

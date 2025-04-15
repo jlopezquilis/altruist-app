@@ -72,14 +72,16 @@ fun MainMenuScreen(
                             icon = R.drawable.ic_donar,
                             size = 90.dp,
                             imageSize = 50.dp,
-                            onClick = onDonarClick
+                            onClick = onDonarClick,
+                            modifier = Modifier
                         )
                         CircleButton(
                             "Quiero Buscar",
                             icon = R.drawable.ic_lupa,
                             size = 90.dp,
                             imageSize = 50.dp,
-                            onClick = onBuscarClick
+                            onClick = onBuscarClick,
+                            modifier = Modifier
                         )
                     }
 
@@ -89,7 +91,8 @@ fun MainMenuScreen(
                         icon = R.drawable.ic_post,
                         size = 90.dp,
                         imageSize = 50.dp,
-                        onClick = onMisDonacionesClick
+                        onClick = onMisDonacionesClick,
+                        modifier = Modifier
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -104,7 +107,8 @@ fun MainMenuScreen(
                             icon = R.drawable.ic_chat,
                             size = 70.dp,
                             imageSize = 35.dp,
-                            onClick = onMensajesClick
+                            onClick = onMensajesClick,
+                            modifier = Modifier
                         )/*
                     CircleButton("Perfil",
                         icon = R.drawable.menu_profile,
