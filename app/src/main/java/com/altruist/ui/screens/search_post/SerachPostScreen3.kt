@@ -16,7 +16,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.R
+import com.altruist.data.model.Category
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.SearchPostViewModel
@@ -30,13 +32,13 @@ import com.altruist.ui.components.FilterSmallButton
 import com.altruist.ui.components.PostItem
 import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.theme.YellowSearchScreen
+import com.altruist.viewmodel.SharedViewModel
 import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.launch
 
 @Composable
 fun SearchPostScreen3(
     viewModel: SearchPostViewModel,
-    onChangeCategoryClick: () -> Unit,
     onChangeLocationClick: () -> Unit,
     onChangeRangeClick: () -> Unit,
     onPostItemClick: (Post) -> Unit,
@@ -46,13 +48,31 @@ fun SearchPostScreen3(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val sharedViewModel: SharedViewModel = hiltViewModel()
+
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val selectedDistanceKm by viewModel.selectedDistanceKm.collectAsState()
+    val locationName by viewModel.locationName.collectAsState()
+
     val posts by viewModel.filteredPosts.collectAsState()
+
+    val searchQuery by viewModel.searchQuery.collectAsState()
+
+    val categories by sharedViewModel.categories.collectAsState()
+    val categoriesWithAll = listOf(
+        Category(
+            id_category = -1L,
+            name = "Todo",
+            description = "Buscar en todas las categorías",
+            icon_url = "https://firebasestorage.googleapis.com/v0/b/altruist-app-73b03.firebasestorage.app/o/category_icons%2Finfinito.png?alt=media&token=41234f86-3f4e-4ce8-bd2a-967c0a957274"
+        )
+    ) + categories
+    var isDropdownExpanded by remember { mutableStateOf(false) }
+
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val gridState = rememberLazyGridState()
     val coroutineScope = rememberCoroutineScope()
-
-    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
@@ -106,8 +126,8 @@ fun SearchPostScreen3(
 
                     SearchBarAltruist (
                         value = searchQuery,
-                        onValueChange = {
-                            searchQuery = it
+                        onValueChange = { newSearchQuery ->
+                            viewModel.onSearchQueryChange(newSearchQuery)
                         },
                         placeholder = "Busca algo más concreto",
                         modifier = Modifier
@@ -124,37 +144,77 @@ fun SearchPostScreen3(
                         crossAxisSpacing = 12.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        FilterSmallButton(
-                            text = "Muuuuuuuuuuuuebles",
-                            icon = painterResource(id = R.drawable.ic_categories),
-                            onClick = onChangeCategoryClick
-                        )
+                        Box {
+                            selectedCategory?.let {
+                                FilterSmallButton(
+                                    text = it.name,
+                                    icon = painterResource(id = R.drawable.ic_categories),
+                                    onClick = {
+                                        isDropdownExpanded = true
+                                    }
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = isDropdownExpanded,
+                                onDismissRequest = { isDropdownExpanded = false }
+                            ) {
+                                categoriesWithAll.forEach { category ->
+                                    DropdownMenuItem(
+                                        text = { Text(category.name) },
+                                        onClick = {
+                                            viewModel.onCategoryChange(category)
+                                            viewModel.loadFilteredPosts(
+                                                onSuccess = {},
+                                                onError = { error -> viewModel.showError(error) }
+                                            )
+                                            isDropdownExpanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
 
                         FilterSmallButton(
-                            text = "Valeeeeencia",
+                            text = locationName,
                             icon = painterResource(id = R.drawable.ic_location_marker),
                             onClick = onChangeLocationClick
                         )
 
                         FilterSmallButton(
-                            text = "50 km",
+                            text = selectedDistanceKm.toInt().toString(),
                             icon = painterResource(id = R.drawable.ic_range),
                             onClick = onChangeRangeClick
                         )
                     }
 
-                    LazyVerticalGrid(
-                        state = gridState,
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(vertical = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        horizontalArrangement = Arrangement.spacedBy(15.dp)
-                    ) {
-                        items(posts) { post ->
-                            PostItem(
-                                post = post,
-                                onPostItemClick = { onPostItemClick(post) }
-                            )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    if (posts.isEmpty()) {
+                        Text(
+                            text = "No se han encontrado publicaciones",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray,
+                            modifier = Modifier
+                                .padding(vertical = 40.dp)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    } else {
+                        LazyVerticalGrid(
+                            state = gridState,
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(vertical = 5.dp),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            horizontalArrangement = Arrangement.spacedBy(15.dp)
+                        ) {
+                            items(posts) { post ->
+                                PostItem(
+                                    viewModel = viewModel,
+                                    post = post,
+                                    onPostItemClick = { onPostItemClick(post) }
+                                )
+                            }
                         }
                     }
                 }

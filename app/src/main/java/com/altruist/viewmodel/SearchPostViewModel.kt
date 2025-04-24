@@ -1,25 +1,54 @@
 package com.altruist.viewmodel
 
 import android.location.Geocoder
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.altruist.data.model.Category
 import com.altruist.data.model.Post
+import com.altruist.data.repository.PostRepository
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchPostViewModel @Inject constructor() : ViewModel() {
+class SearchPostViewModel @Inject constructor(
+    private val postRepository: PostRepository
+) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<Category?>(null)
     val selectedCategory: StateFlow<Category?> = _selectedCategory
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage: StateFlow<String?> = _errorMessage
+    private val _selectedDistanceKm = MutableStateFlow(50f)
+    val selectedDistanceKm: StateFlow<Float> = _selectedDistanceKm
+
+    private val _locationName = MutableStateFlow("Valencia")
+    val locationName: StateFlow<String> = _locationName
+
+    //UBICACION POR DEFECTO: Valencia
+    private val _latitude = MutableStateFlow(39.4699)
+    val latitude: StateFlow<Double> = _latitude
+
+    private val _longitude = MutableStateFlow(-0.3763)
+    val longitude: StateFlow<Double> = _longitude
+
+    private val _filteredPosts = MutableStateFlow<List<Post>>(emptyList())
+    val filteredPosts: StateFlow<List<Post>> = _filteredPosts
+
+    private var allPosts: List<Post> = emptyList()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    //Variables genéricas
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _searchPost1Success = MutableStateFlow(false)
     val searchPost1Success: StateFlow<Boolean> = _searchPost1Success
@@ -27,56 +56,11 @@ class SearchPostViewModel @Inject constructor() : ViewModel() {
     private val _searchPost2Success = MutableStateFlow(false)
     val searchPost2Success: StateFlow<Boolean> = _searchPost2Success
 
-    private val _latitude = MutableStateFlow(39.4699) // Valencia por defecto
-    val latitude: StateFlow<Double> = _latitude
-
-    private val _longitude = MutableStateFlow(-0.3763)
-    val longitude: StateFlow<Double> = _longitude
-
-    private val _selectedDistanceKm = MutableStateFlow(50f)
-    val selectedDistanceKm: StateFlow<Float> = _selectedDistanceKm
-
-    /*
-    PRUEBA PARA SEARCHPOSTSCREEN3
-     */
-    private val _filteredPosts = MutableStateFlow<List<Post>>(emptyList())
-    val filteredPosts: StateFlow<List<Post>> = _filteredPosts
-
-    private val allPosts = listOf(
-        Post(
-            id_post = 1,
-            title = "Silla de oficina",
-            images = listOf("https://via.placeholder.com/300"),
-            id_user = 3,
-            description = "",
-            status = "",
-            quality = "",
-            latitude = 0.0,
-            longitude = 0.0,
-            date_created = "",
-            id_category = 5
-        ),
-        Post(
-            id_post = 1,
-            title = "Silla de oficina",
-            images = listOf("https://via.placeholder.com/300"),
-            id_user = 3,
-            description = "",
-            status = "",
-            quality = "",
-            latitude = 0.0,
-            longitude = 0.0,
-            date_created = "",
-            id_category = 5
-        ),
-        // Añade más posts mock si lo necesitas
-    )
-
-    init {
-        _filteredPosts.value = allPosts
-    }
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
     fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
         _filteredPosts.value = if (query.isBlank()) {
             allPosts
         } else {
@@ -106,6 +90,25 @@ class SearchPostViewModel @Inject constructor() : ViewModel() {
         _errorMessage.value = null
     }
 
+
+    //TODO: Get location name
+    @androidx.annotation.RequiresApi(33) // Opcional si usas minSdk < 33
+    fun getLocationName(geocoder: Geocoder) {
+        val lat = _latitude.value
+        val lon = _longitude.value
+
+        geocoder.getFromLocation(lat, lon, 1) { addresses ->
+            val city = addresses?.firstOrNull()?.locality
+                ?: addresses?.firstOrNull()?.subAdminArea
+                ?: addresses?.firstOrNull()?.adminArea
+                ?: "Ubicación desconocida"
+
+            _locationName.value = city
+        }
+    }
+
+
+
     fun searchLocation(query: String, geocoder: Geocoder, onResult: (LatLng?) -> Unit) {
         try {
             val addresses = geocoder.getFromLocationName(query, 1)
@@ -120,10 +123,31 @@ class SearchPostViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    fun loadFilteredPosts(
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+            postRepository.getFilteredPosts(
+                idCategory = selectedCategory.value?.id_category ?: return@launch,
+                latitude = latitude.value,
+                longitude = longitude.value,
+                maxDistanceKm = selectedDistanceKm.value.toDouble()
+            ).onSuccess { posts ->
+                allPosts = posts
+                _filteredPosts.value = posts
+                onSuccess()
+            }.onFailure {
+                onError("Error al cargar publicaciones: ${it.message}")
+            }
+        }
+    }
+
+
     fun onContinueFromSearchPost1Click() {
         when {
             _selectedCategory.value == null -> {
-                _errorMessage.value = "Por favor, selecciona una categoría."
+                showError("Por favor, selecciona una categoría.")
             }
             else -> {
                 _searchPost1Success.value = true
@@ -131,11 +155,22 @@ class SearchPostViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun onContinueFromSearchPost2Click() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun onContinueFromSearchPost2Click(geocoder: Geocoder) {
         when {
 
             else -> {
-                _searchPost2Success.value = true
+                getLocationName(geocoder)
+                _isLoading.value = true
+                loadFilteredPosts(
+                    onSuccess = {
+                        _searchPost2Success.value = true
+                    },
+                    onError = { error ->
+                        showError(error)
+                    }
+                )
+                _isLoading.value = false
             }
         }
     }

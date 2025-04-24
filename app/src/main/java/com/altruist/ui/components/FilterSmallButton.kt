@@ -1,6 +1,7 @@
 package com.altruist.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -31,6 +32,7 @@ fun FilterSmallButton(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(Shapes.large)
+            .clickable {onClick()}
             .background(DarkYellowSearchScreen)
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {

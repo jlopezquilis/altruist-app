@@ -43,11 +43,19 @@ interface ApiService {
     @GET("api/categories")
     suspend fun getAllCategories(): Response<List<AllCategoriesResponse>>
 
-   //POSTS
-   @POST("api/posts/createPost")
-   suspend fun createPost(@Body createPostRequest: CreatePostRequest): Response<Long>
+    //POSTS
+    @POST("api/posts/createPost")
+    suspend fun createPost(@Body createPostRequest: CreatePostRequest): Response<Long>
 
-   @GET("api/posts/{id}")
-   suspend fun getPostById(@Path("id") id: Long): Response<Post>
+    @GET("api/posts/{id}")
+    suspend fun getPostById(@Path("id") id: Long): Response<Post>
+
+    @GET("api/posts/filter")
+    suspend fun getPostsByFilters(
+        @Query("idCategory") idCategory: Long,
+        @Query("latitude") latitude: Double,
+        @Query("longitude") longitude: Double,
+        @Query("maxDistanceKm") maxDistanceKm: Double
+    ): List<Post>
 
 }

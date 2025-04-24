@@ -45,4 +45,18 @@ class PostRepository @Inject constructor(
         }
     }
 
+    suspend fun getFilteredPosts(
+        idCategory: Long,
+        latitude: Double,
+        longitude: Double,
+        maxDistanceKm: Double
+    ): Result<List<Post>> {
+        return try {
+            val posts = api.getPostsByFilters(idCategory, latitude, longitude, maxDistanceKm)
+            Result.success(posts)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

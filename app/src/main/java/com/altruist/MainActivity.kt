@@ -1,9 +1,11 @@
 package com.altruist
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -76,6 +78,7 @@ object NavRoutes {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AltruistApp(sharedViewModel: SharedViewModel) {
     val navController = rememberNavController()
@@ -83,7 +86,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
     AltruistTheme {
         NavHost(
             navController = navController,
-            startDestination = NavRoutes.MAINMENU
+            startDestination = NavRoutes.Welcome
         ) {
             composable(NavRoutes.Welcome) {
                 WelcomeScreen(
@@ -313,37 +316,21 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             sharedViewModel.onSelectedPostChange(post)
                             navController.navigate(NavRoutes.SEARCHPOST2)
                         },
-                        onChangeCategoryClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
-                        },
                         onChangeLocationClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
+                            navController.navigate(NavRoutes.SEARCHPOST2)
                         },
                         onChangeRangeClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
+                            navController.navigate(NavRoutes.SEARCHPOST2)
                         },
                         onMainMenuClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
+                            navController.navigate(NavRoutes.MAINMENU)
                         },
                         onDonateClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
+                            navController.navigate(NavRoutes.CreatePostGraph)
                         },
                         onMessagesClick = {
-                            navController.navigate(NavRoutes.CreatePost4)
-                        },
-                    )
-                }
-
-                composable(NavRoutes.CreatePost4) { backStackEntry ->
-                    val parentEntry = remember(backStackEntry) {
-                        navController.getBackStackEntry(NavRoutes.CreatePostGraph)
-                    }
-                    val viewModel: CreatePostViewModel = hiltViewModel(parentEntry)
-                    CreatePostScreen4(
-                        viewModel = viewModel,
-                        onPost4Success = {
                             navController.navigate(NavRoutes.MAINMENU)
-                        }
+                        },
                     )
                 }
             }

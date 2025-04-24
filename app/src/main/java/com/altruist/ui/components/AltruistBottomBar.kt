@@ -80,7 +80,7 @@ fun BottomBarItem(
         Icon(
             painter = painterResource(id = iconId),
             contentDescription = text,
-            modifier = Modifier.size(35.dp),
+            modifier = Modifier.size(30.dp),
         )
         Spacer(modifier = Modifier.size(8.dp))
         Text(

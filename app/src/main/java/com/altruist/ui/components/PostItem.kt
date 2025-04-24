@@ -23,10 +23,13 @@ import com.altruist.data.model.Post
 import com.altruist.ui.theme.Gray
 import com.altruist.ui.theme.Shapes
 import com.altruist.ui.theme.YellowSearchScreen
+import com.altruist.viewmodel.SearchPostViewModel
+import java.util.Locale
 
 
 @Composable
 fun PostItem(
+    viewModel: SearchPostViewModel,
     post: Post,
     modifier: Modifier = Modifier,
     onPostItemClick: (Post) -> Unit
@@ -51,14 +54,12 @@ fun PostItem(
                     .clip(Shapes.medium)
             ) {
                 AsyncImage(
-                    //model = post.images.firstOrNull(),
-                    model = "https://firebasestorage.googleapis.com/v0/b/altruist-app-73b03.firebasestorage.app/o/profile_pictures%2Fd2c7d708-a0bf-449c-b876-855f34c6ce17.jpg?alt=media&token=4b60b3f6-c6e6-42a2-a0f7-49e3346a71df",
+                    model = post.imageUrls.firstOrNull(),
                     contentDescription = post.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Distancia abajo a la derecha
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -75,7 +76,7 @@ fun PostItem(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "15 km",
+                        text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
                         color = Gray,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -98,7 +99,7 @@ fun PostItem(
                 modifier = Modifier.padding(horizontal = 8.dp)
             ) {
                 AsyncImage(
-                    model = "https://firebasestorage.googleapis.com/v0/b/altruist-app-73b03.firebasestorage.app/o/profile_pictures%2F8827fefb-7c98-423a-bad1-8a577c841616.jpg?alt=media&token=2f77180a-d4aa-4052-ab01-5e66eaf1c693", // URL real del avatar del user
+                    model = post.user.profile_picture_url,
                     contentDescription = "Avatar",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -109,7 +110,7 @@ fun PostItem(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = "Pedro", // Nombre del usuario
+                    text = post.user.name,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )

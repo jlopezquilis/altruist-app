@@ -24,7 +24,6 @@ import com.google.android.gms.maps.model.LatLng
 
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
-    private val categoryRepository: CategoryRepository,
     private val postRepository: PostRepository,
     private val userSession: UserSession
 ) : ViewModel() {
@@ -32,13 +31,8 @@ class CreatePostViewModel @Inject constructor(
     private val _userId = MutableStateFlow<Long?>(null)
     val userId: StateFlow<Long?> = _userId
 
-
     private val _title = MutableStateFlow("")
     val title: StateFlow<String> = _title
-
-    // Lista de categorías (Tipo Category)
-    //private val _categories = MutableStateFlow<List<Category>>(emptyList())
-    //val categories: StateFlow<List<Category>> = _categories
 
     private val _category = MutableStateFlow(Category(0, "", "", ""))
     val category: StateFlow<Category> = _category
@@ -197,19 +191,6 @@ class CreatePostViewModel @Inject constructor(
                 }
         }
     }
-
-    /*
-    suspend fun loadCategories() {
-        _isLoading.value = true
-        val result = categoryRepository.getAllCategories()
-        _isLoading.value = false
-        result.onSuccess { categories ->
-            this.categories.value = categories
-        }.onFailure {
-            _errorMessage.value = "Error al cargar las categorías: ${it.message}"}
-    }
-     */
-
 
     // Función para buscar la ubicación por dirección
     fun searchLocation(query: String, geocoder: Geocoder, onResult: (LatLng?) -> Unit) {

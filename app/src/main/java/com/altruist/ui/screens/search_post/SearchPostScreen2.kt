@@ -1,9 +1,10 @@
 package com.altruist.ui.screens.search_post
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -17,15 +18,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.altruist.ui.components.AltruistBorderedShadowedTextField
-import com.altruist.ui.components.AltruistBorderedTextField
 import com.altruist.ui.components.DoubleTitle
-import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.components.SecondaryButton
-import com.altruist.ui.theme.BorderYellow
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.SearchPostViewModel
@@ -39,6 +35,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun SearchPostScreen2(
     viewModel: SearchPostViewModel,
@@ -58,8 +55,8 @@ fun SearchPostScreen2(
         position = CameraPosition.fromLatLngZoom(LatLng(latitude, longitude), 12f)
     }
 
-    var searchQuery by remember { mutableStateOf("") }
-    var searchResult by remember { mutableStateOf<LatLng?>(null) }
+    var searchLocationQuery by remember { mutableStateOf("") }
+    var searchLocationResult by remember { mutableStateOf<LatLng?>(null) }
 
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -72,7 +69,7 @@ fun SearchPostScreen2(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     val userLatLng = LatLng(it.latitude, it.longitude)
-                    searchResult = userLatLng
+                    searchLocationResult = userLatLng
                     viewModel.onLocationSelected(it.latitude, it.longitude)
                 }
             }
@@ -93,11 +90,11 @@ fun SearchPostScreen2(
         moveToUserLocation()
     }
 
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotBlank()) {
+    LaunchedEffect(searchLocationQuery) {
+        if (searchLocationQuery.isNotBlank()) {
             delay(500)
-            viewModel.searchLocation(searchQuery, geocoder) { result ->
-                searchResult = result
+            viewModel.searchLocation(searchLocationQuery, geocoder) { result ->
+                searchLocationResult = result
                 result?.let { viewModel.onLocationSelected(it.latitude, it.longitude) }
             }
         }
@@ -147,11 +144,11 @@ fun SearchPostScreen2(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
                         onMapClick = { latLng ->
-                            searchResult = latLng
+                            searchLocationResult = latLng
                             viewModel.onLocationSelected(latLng.latitude, latLng.longitude)
                         }
                     ) {
-                        val markerPosition = searchResult ?: LatLng(latitude, longitude)
+                        val markerPosition = searchLocationResult ?: LatLng(latitude, longitude)
                         Marker(
                             state = MarkerState(position = markerPosition),
                             title = "Ubicación seleccionada"
@@ -159,8 +156,8 @@ fun SearchPostScreen2(
                     }
 
                     SearchBarAltruist (
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchLocationQuery,
+                        onValueChange = { searchLocationQuery = it },
                         placeholder = "Busca una localización",
                         modifier = Modifier
                             .fillMaxWidth()
@@ -214,7 +211,7 @@ fun SearchPostScreen2(
                     SecondaryButton(
                         text = "Continuar",
                         onClick = {
-                            viewModel.onContinueFromSearchPost2Click()
+                            viewModel.onContinueFromSearchPost2Click(geocoder)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )

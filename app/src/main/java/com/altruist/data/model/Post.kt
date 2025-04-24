@@ -8,8 +8,9 @@ data class Post(
     val quality: String?,
     val latitude: Double,
     val longitude: Double,
-    val date_created: String,
-    val id_category: Long,
-    val id_user: Long,
-    val images: List<String> = emptyList()
+    val date_created: String, //Con JSON, se mapea a String
+    val category: Category,
+    val user: User,
+    val imageUrls: List<String>,
+    val distanceFromFilter: Double
 )
