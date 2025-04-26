@@ -46,8 +46,6 @@ fun SearchPostScreen3(
     onDonateClick: () -> Unit,
     onMessagesClick: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
     val sharedViewModel: SharedViewModel = hiltViewModel()
 
     val selectedCategory by viewModel.selectedCategory.collectAsState()
@@ -69,6 +67,7 @@ fun SearchPostScreen3(
     ) + categories
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     val gridState = rememberLazyGridState()

@@ -24,6 +24,7 @@ import com.altruist.ui.screens.create_post.CreatePostScreen2
 import com.altruist.ui.screens.create_post.CreatePostScreen3
 import com.altruist.ui.screens.create_post.CreatePostScreen4
 import com.altruist.ui.screens.main.MainMenuScreen
+import com.altruist.ui.screens.post_detail.PostDetailScreen
 import com.altruist.ui.screens.register.RegisterScreen1
 import com.altruist.ui.screens.register.RegisterScreen2
 import com.altruist.ui.screens.register.RegisterScreen3
@@ -41,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -74,6 +76,8 @@ object NavRoutes {
     const val SEARCHPOST1 = "searchPost1"
     const val SEARCHPOST2 = "searchPost2"
     const val SEARCHPOST3 = "searchPost3"
+
+    const val POSTDETAIL = "postDetail"
 
 }
 
@@ -309,12 +313,11 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         navController.getBackStackEntry(NavRoutes.SEARCHPOSTGRAPH)
                     }
                     val viewModel: SearchPostViewModel = hiltViewModel(parentEntry)
-                    val sharedViewModel: SharedViewModel = hiltViewModel()
                     SearchPostScreen3(
                         viewModel = viewModel,
                         onPostItemClick = { post ->
                             sharedViewModel.onSelectedPostChange(post)
-                            navController.navigate(NavRoutes.SEARCHPOST2)
+                            navController.navigate(NavRoutes.POSTDETAIL)
                         },
                         onChangeLocationClick = {
                             navController.navigate(NavRoutes.SEARCHPOST2)
@@ -333,6 +336,13 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         },
                     )
                 }
+            }
+
+            composable(NavRoutes.POSTDETAIL) {
+                PostDetailScreen(
+                    postId = sharedViewModel.selectedPost.value?.id_post ?: -1L,
+                    onRequestClick = {}
+                )
             }
 
         }

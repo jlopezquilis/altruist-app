@@ -58,6 +58,9 @@ fun SearchPostScreen2(
     var searchLocationQuery by remember { mutableStateOf("") }
     var searchLocationResult by remember { mutableStateOf<LatLng?>(null) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
@@ -75,6 +78,16 @@ fun SearchPostScreen2(
             }
         } else {
             viewModel.showError("No tenemos permiso para acceder a tu ubicación, pero puedes buscar una localización específica.")
+        }
+    }
+
+    LaunchedEffect(errorMessage) {
+        if (!errorMessage.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(
+                message = errorMessage!!,
+                withDismissAction = true,
+                duration = SnackbarDuration.Long
+            )
         }
     }
 
