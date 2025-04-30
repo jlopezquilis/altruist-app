@@ -62,8 +62,8 @@ interface ApiService {
     ): List<Post>
 
     //REQUEST
-    @POST("api/requests/create")
-    suspend fun createRequest(@Body request: CreateSimplifiedRequestRequest): Response<Long>
+    @POST("api/requests/createRequest")
+    suspend fun createRequest(@Body request: CreateSimplifiedRequestRequest): Response<Boolean>
 
     @GET("api/requests/{idUser}/{idPost}")
     suspend fun getRequestByUserAndPost(

@@ -342,8 +342,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
             composable(NavRoutes.POSTDETAIL) {
                 sharedViewModel.selectedPost.value?.let { it1 ->
                     PostDetailScreen(
-                        post = it1,
-                        onRequestClick = {}
+                        post = it1
                     )
                 }
             }

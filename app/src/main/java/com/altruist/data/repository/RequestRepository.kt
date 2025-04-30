@@ -10,12 +10,12 @@ class RequestRepository @Inject constructor(
     private val api: ApiService
 ) {
 
-    suspend fun createRequest(request: CreateSimplifiedRequestRequest): Result<Long> {
+    suspend fun createRequest(request: CreateSimplifiedRequestRequest): Result<Boolean> {
         return try {
             val response = api.createRequest(request)
             if (response.isSuccessful) {
-                val requestId = response.body() ?: return Result.failure(Exception("Respuesta vacía"))
-                Result.success(requestId)
+                val result = response.body() ?: return Result.failure(Exception("Respuesta vacía"))
+                Result.success(result)
             } else {
                 val errorBody = response.errorBody()?.string()
                 val message = errorBody ?: "Error desconocido"
@@ -25,6 +25,7 @@ class RequestRepository @Inject constructor(
             Result.failure(Exception("Error de red: ${e.message}"))
         }
     }
+
 
     suspend fun getRequestByUserAndPost(idUser: Long, idPost: Long): Result<Request> {
         return try {

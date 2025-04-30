@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import com.altruist.R
 import com.altruist.data.model.Post
+import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.DotsIndicator
 import com.altruist.ui.components.SmallSecondaryButton
 import com.altruist.ui.theme.BackgroundTop
@@ -55,13 +56,13 @@ import java.util.Locale
 @Composable
 fun PostDetailScreen(
     post: Post,
-    viewModel: PostDetailViewModel = hiltViewModel(),
-    onRequestClick: () -> Unit
+    viewModel: PostDetailViewModel = hiltViewModel()
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val requestSuccessMessage by viewModel.requestSuccessMessage.collectAsState()
 
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
@@ -71,6 +72,17 @@ fun PostDetailScreen(
                 duration = SnackbarDuration.Long
             )
         }
+    }
+
+    LaunchedEffect(requestSuccessMessage) {
+        if (!requestSuccessMessage.isNullOrBlank()) {
+            snackbarHostState.showSnackbar(
+                message = requestSuccessMessage!!,
+                withDismissAction = true,
+                duration = SnackbarDuration.Long
+            )
+        }
+        viewModel.clearRequestSuccess()
     }
 
     /*
@@ -85,6 +97,12 @@ fun PostDetailScreen(
         navigationBarColor = White
     ) {
         Scaffold(
+            snackbarHost = {
+                AltruistSnackbarHost(
+                    snackbarHostState = snackbarHostState,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
+            },
             containerColor = Color.Transparent
         ) { innerPadding ->
 
@@ -92,7 +110,8 @@ fun PostDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
+                        .padding(innerPadding)
+                        .background(White),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -257,7 +276,7 @@ fun PostDetailScreen(
                         cameraPositionState = cameraPositionState
                     ) {
                         Circle(
-                            center = LatLng(post.latitude, post!!.longitude),
+                            center = LatLng(post.latitude, post.longitude),
                             radius = 300.0,
                             strokeColor = DarkYellowTransparent,
                             fillColor = YellowLightTransparent
@@ -299,7 +318,9 @@ fun PostDetailScreen(
 
                         SmallSecondaryButton(
                             text = "Solicitar",
-                            onClick = onRequestClick
+                            onClick = {
+                                viewModel.sendRequest(post.id_post, post.user.id_user)
+                            }
                         )
                     }
                 }
