@@ -2,8 +2,10 @@ package com.altruist.data.network
 
 import com.altruist.data.model.Post
 import com.altruist.data.model.User
+import com.altruist.data.model.request.Request
 import com.altruist.data.network.dto.AllCategoriesResponse
 import com.altruist.data.network.dto.post.CreatePostRequest
+import com.altruist.data.network.dto.request.CreateSimplifiedRequestRequest
 import com.altruist.data.network.dto.user.AvailabilityResponse
 import com.altruist.data.network.dto.user.CreateUserRequest
 import com.altruist.data.network.dto.user.SendVerificationCodeRequest
@@ -11,6 +13,7 @@ import com.altruist.data.network.dto.user.LoginRequest
 import com.altruist.data.network.dto.user.LoginResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -58,4 +61,29 @@ interface ApiService {
         @Query("maxDistanceKm") maxDistanceKm: Double
     ): List<Post>
 
+    //REQUEST
+    @POST("api/requests/create")
+    suspend fun createRequest(@Body request: CreateSimplifiedRequestRequest): Response<Long>
+
+    @GET("api/requests/{idUser}/{idPost}")
+    suspend fun getRequestByUserAndPost(
+        @Path("idUser") idUser: Long,
+        @Path("idPost") idPost: Long
+    ): Response<Request>
+
+    @GET("api/requests/user/{idUser}")
+    suspend fun getRequestsByUser(
+        @Path("idUser") idUser: Long
+    ): Response<List<Request>>
+
+    @GET("api/requests/post/{idPost}")
+    suspend fun getRequestsByPost(
+        @Path("idPost") idPost: Long
+    ): Response<List<Request>>
+
+    @DELETE("api/requests/{idUser}/{idPost}")
+    suspend fun deleteRequest(
+        @Path("idUser") idUser: Long,
+        @Path("idPost") idPost: Long
+    ): Response<Unit>
 }
