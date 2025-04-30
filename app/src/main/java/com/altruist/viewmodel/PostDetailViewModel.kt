@@ -2,6 +2,7 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.model.Category
 import com.altruist.data.model.Post
 import com.altruist.data.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,10 @@ class PostDetailViewModel @Inject constructor(
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+    fun onPostChange(post: Post) {
+        _post.value = post
+    }
 
     fun loadPostById(postId: Long) {
         viewModelScope.launch {

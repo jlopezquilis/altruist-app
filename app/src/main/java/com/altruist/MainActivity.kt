@@ -82,6 +82,7 @@ object NavRoutes {
 }
 
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AltruistApp(sharedViewModel: SharedViewModel) {
@@ -339,10 +340,12 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
             }
 
             composable(NavRoutes.POSTDETAIL) {
-                PostDetailScreen(
-                    postId = sharedViewModel.selectedPost.value?.id_post ?: -1L,
-                    onRequestClick = {}
-                )
+                sharedViewModel.selectedPost.value?.let { it1 ->
+                    PostDetailScreen(
+                        post = it1,
+                        onRequestClick = {}
+                    )
+                }
             }
 
         }

@@ -3,15 +3,15 @@ package com.altruist.utils
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.time.Duration
-import java.time.OffsetDateTime
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getTimeAgoText(isoDateTimeString: String): String {
     return try {
-        val publishedTime = OffsetDateTime.parse(isoDateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-        val now = OffsetDateTime.now()
+        val publishedTime = LocalDateTime.parse(isoDateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val now = LocalDateTime.now()
         val duration = Duration.between(publishedTime, now)
 
         when {

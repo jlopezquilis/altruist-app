@@ -36,6 +36,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import com.altruist.R
+import com.altruist.data.model.Post
 import com.altruist.ui.components.DotsIndicator
 import com.altruist.ui.components.SmallSecondaryButton
 import com.altruist.ui.theme.BackgroundTop
@@ -53,11 +54,10 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PostDetailScreen(
-    postId: Long,
+    post: Post,
     viewModel: PostDetailViewModel = hiltViewModel(),
     onRequestClick: () -> Unit
 ) {
-    val post by viewModel.post.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -73,9 +73,12 @@ fun PostDetailScreen(
         }
     }
 
-    LaunchedEffect(postId) {
-        viewModel.loadPostById(postId)
+    /*
+    LaunchedEffect(post) {
+        viewModel.onPostChange(post)
     }
+
+     */
 
     AltruistScreenWrapper(
         statusBarColor = White,
@@ -94,15 +97,15 @@ fun PostDetailScreen(
                 ) {
                     CircularProgressIndicator()
                 }
-            } else if (post != null) {
+            } else {
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(
-                        LatLng(post!!.latitude, post!!.longitude),
+                        LatLng(post.latitude, post.longitude),
                         13f
                     )
                 }
 
-                val imageUrls = post!!.imageUrls
+                val imageUrls = post.imageUrls
                 val pagerState = rememberPagerState(initialPage = 0, pageCount = { imageUrls.size })
 
                 Column(
@@ -164,14 +167,14 @@ fun PostDetailScreen(
                                     .padding(horizontal = 24.dp)
                             ) {
                                 Text(
-                                    text = post!!.title,
+                                    text = post.title,
                                     style = TitleMediumTextStyle,
                                 )
 
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 Text(
-                                    text = "${post!!.category.name} · ${post!!.quality ?: "Estado desconocido"}",
+                                    text = "${post.category.name} · ${post.quality ?: "Estado desconocido"}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
 
@@ -191,7 +194,7 @@ fun PostDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = getTimeAgoText(post!!.date_created),
+                                            text = getTimeAgoText(post.date_created),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = Color.Gray
                                         )
@@ -206,7 +209,7 @@ fun PostDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = String.format(Locale.US, "%.1f km", post!!.distanceFromFilter),
+                                            text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = Color.Gray
                                         )
@@ -229,7 +232,7 @@ fun PostDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = post!!.description ?: "No hay descripción.",
+                        text = post.description ?: "No hay descripción.",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
@@ -254,7 +257,7 @@ fun PostDetailScreen(
                         cameraPositionState = cameraPositionState
                     ) {
                         Circle(
-                            center = LatLng(post!!.latitude, post!!.longitude),
+                            center = LatLng(post.latitude, post!!.longitude),
                             radius = 300.0,
                             strokeColor = DarkYellowTransparent,
                             fillColor = YellowLightTransparent
@@ -281,7 +284,7 @@ fun PostDetailScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                painter = rememberAsyncImagePainter(post!!.user.profile_picture_url),
+                                painter = rememberAsyncImagePainter(post.user.profile_picture_url),
                                 contentDescription = "Foto del usuario",
                                 modifier = Modifier
                                     .size(48.dp)
@@ -289,7 +292,7 @@ fun PostDetailScreen(
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
-                                text = post!!.user.name,
+                                text = post.user.name,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -299,15 +302,6 @@ fun PostDetailScreen(
                             onClick = onRequestClick
                         )
                     }
-                }
-            } else if (errorMessage != null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = errorMessage ?: "Error desconocido", color = Color.Red)
                 }
             }
         }
