@@ -1,5 +1,8 @@
 package com.altruist.ui.screens.user_posts
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.altruist.data.model.Post
 import com.altruist.utils.dto.UserPostUI
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
@@ -30,11 +34,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun UserPostsScreen(
     viewModel: UserPostsViewModel = hiltViewModel(),
-    onViewInterestedClick: (postId: Long) -> Unit
+    onViewInterestedClick: (post: Post) -> Unit,
+    onViewPostClick: (post: Post) -> Unit
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
     val posts by viewModel.filteredUserPosts.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -70,7 +77,7 @@ fun UserPostsScreen(
 
                     Text(
                         text = "Mis donaciones",
-                        style = MaterialTheme.typography.headlineLarge
+                        style = MaterialTheme.typography.titleLarge
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -100,17 +107,69 @@ fun UserPostsScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(bottom = 40.dp)
                         ) {
-                            items(posts) { userPostUI: UserPostUI ->
-                                UserPostItem(
-                                    userPostUI = userPostUI,
-                                    onDeleteClick = {
-                                        viewModel.deletePostFromList(userPostUI.post.id_post)
-                                    },
-                                    onViewInterestedClick = {
-                                        onViewInterestedClick(userPostUI.post.id_post)
-                                    }
-                                )
+
+                            items(posts, key = { it.post.id_post }) { userPostUI ->
+                                var visible by remember { mutableStateOf(true) }
+                                var showDialog by remember { mutableStateOf(false) }
+
+                                AnimatedVisibility(
+                                    visible = visible,
+                                    exit = fadeOut() + shrinkVertically()
+                                ) {
+                                    UserPostItem(
+                                        userPostUI = userPostUI,
+                                        onDeleteClick = {
+                                            showDialog = true
+                                        },
+                                        onViewInterestedClick = {
+                                            onViewInterestedClick(userPostUI.post)
+                                        },
+                                        onPostItemClick = {
+                                            onViewPostClick(userPostUI.post)
+                                        }
+                                    )
+                                }
+
+                                if (showDialog) {
+                                    AlertDialog(
+                                        onDismissRequest = { showDialog = false },
+                                        title = { Text(
+                                            text = "¿Eliminar publicación?",
+                                            style = MaterialTheme.typography.titleMedium
+                                        ) },
+                                        text = { Text(
+                                            text = "Esta acción no se puede deshacer.",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        ) },
+                                        confirmButton = {
+                                            TextButton(onClick = {
+                                                showDialog = false
+                                                visible = false
+                                                coroutineScope.launch {
+                                                    kotlinx.coroutines.delay(300)
+                                                    viewModel.deletePostFromList(userPostUI.post.id_post)
+                                                }
+                                            }) {
+                                                Text(
+                                                    text = "Sí",
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = MaterialTheme.colorScheme.error
+                                                )
+                                            }
+                                        },
+                                        dismissButton = {
+                                            TextButton(onClick = { showDialog = false }) {
+                                                Text(
+                                                    text = "No",
+                                                    style = MaterialTheme.typography.labelMedium
+                                                )
+                                            }
+                                        }
+                                    )
+                                }
                             }
+
+
                         }
                     }
                 }

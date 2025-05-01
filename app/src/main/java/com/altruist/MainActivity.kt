@@ -366,6 +366,10 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         viewModel = viewModel,
                         onViewInterestedClick = { postId ->
                             navController.navigate("${NavRoutes.POSTDETAIL}?postId=$postId")
+                        },
+                        onViewPostClick = { post ->
+                            sharedViewModel.onSelectedPostChange(post)
+                            navController.navigate(NavRoutes.POSTDETAIL)
                         }
                     )
                 }
