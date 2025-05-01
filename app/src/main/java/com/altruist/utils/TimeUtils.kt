@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 fun getTimeAgoText(isoDateTimeString: String): String {
     return try {
-        val publishedTime = LocalDateTime.parse(isoDateTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val publishedTime = LocalDateTime.parse(isoDateTimeString, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val now = LocalDateTime.now()
         val duration = Duration.between(publishedTime, now)
 

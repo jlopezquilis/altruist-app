@@ -20,7 +20,15 @@ class PostRepository @Inject constructor(
                 Result.success(postId)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {
@@ -37,7 +45,15 @@ class PostRepository @Inject constructor(
                 Result.success(post)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {

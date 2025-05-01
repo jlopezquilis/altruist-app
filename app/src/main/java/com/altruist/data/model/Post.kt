@@ -8,7 +8,7 @@ data class Post(
     val quality: String?,
     val latitude: Double,
     val longitude: Double,
-    val date_created: String, //Con JSON, se mapea a String
+    val date_created: String,
     val category: Category,
     val user: User,
     val imageUrls: List<String>,

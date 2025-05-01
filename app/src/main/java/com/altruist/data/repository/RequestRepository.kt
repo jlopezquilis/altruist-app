@@ -4,6 +4,7 @@ package com.altruist.data.repository
 import com.altruist.data.model.request.Request
 import com.altruist.data.network.ApiService
 import com.altruist.data.network.dto.request.CreateSimplifiedRequestRequest
+import org.json.JSONObject
 import javax.inject.Inject
 
 class RequestRepository @Inject constructor(
@@ -18,7 +19,15 @@ class RequestRepository @Inject constructor(
                 Result.success(result)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {
@@ -34,9 +43,18 @@ class RequestRepository @Inject constructor(
                 val request = response.body() ?: return Result.failure(Exception("Respuesta vacía"))
                 Result.success(request)
             } else {
+                val code = response.code()
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
-                Result.failure(Exception(message))
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
+                Result.failure(Exception("HTTP $code: $message"))
             }
         } catch (e: Exception) {
             Result.failure(Exception("Error de red: ${e.message}"))
@@ -51,7 +69,15 @@ class RequestRepository @Inject constructor(
                 Result.success(requests)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {
@@ -67,7 +93,15 @@ class RequestRepository @Inject constructor(
                 Result.success(requests)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {
@@ -82,7 +116,15 @@ class RequestRepository @Inject constructor(
                 Result.success(Unit)
             } else {
                 val errorBody = response.errorBody()?.string()
-                val message = errorBody ?: "Error desconocido"
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
                 Result.failure(Exception(message))
             }
         } catch (e: Exception) {

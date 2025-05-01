@@ -11,5 +11,5 @@ data class Request(
     val body: String?,
     val image: String?,
     val status: String?,
-    val dateCreated: LocalDateTime
+    val dateCreated: String
 )

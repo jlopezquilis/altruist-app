@@ -22,6 +22,9 @@ class PostDetailViewModel @Inject constructor(
     private val _post = MutableStateFlow<Post?>(null)
     val post: StateFlow<Post?> = _post
 
+    private val _requestStatus = MutableStateFlow<RequestStatus?>(null)
+    val requestStatus: StateFlow<RequestStatus?> = _requestStatus
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -44,8 +47,8 @@ class PostDetailViewModel @Inject constructor(
                     _post.value = fetchedPost
                     _errorMessage.value = null
                 }
-                .onFailure { exception ->
-                    _errorMessage.value = "Error al cargar el post: ${exception.message}"
+                .onFailure {
+                    _errorMessage.value = "Error al cargar el post: ${it.message}"
                 }
             _isLoading.value = false
         }
@@ -61,9 +64,9 @@ class PostDetailViewModel @Inject constructor(
                     _errorMessage.value = null
                     //Prefijo SUCCESS para alterar estilo Scaffold (mensaje flotante)
                     _requestSuccessMessage.value = "SUCCESS|Solicitud creada con éxito"
-                }.onFailure { exception ->
-                    _errorMessage.value = "Error al enviar la solicitud\n${exception.message}"
-                    println("Error al enviar la solicitud: ${exception.message}")
+                    getRequestStatus(postId, userId)
+                }.onFailure {
+                    _errorMessage.value = "Error al enviar la solicitud:\n${it.message}"
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Excepción al enviar la solicitud: ${e.message}"
@@ -72,6 +75,31 @@ class PostDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun getRequestStatus(id_post: Long, id_user: Long) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                requestRepository.getRequestByUserAndPost(id_user, id_post)
+                    .onSuccess { request ->
+                        _requestStatus.value = request.status?.let { RequestStatus.valueOf(it) }
+                    }
+                    .onFailure { exception ->
+                        val isNotFound = exception.message?.contains("HTTP 404") == true
+                        if (!isNotFound) {
+                            _errorMessage.value = "No se pudo obtener el estado de la solicitud\n${exception.message}"
+                        }
+                        _requestStatus.value = null
+                    }
+            } catch (e: Exception) {
+                _errorMessage.value = "Excepción al obtener estado: ${e.message}"
+                _requestStatus.value = null
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
 
 
     fun clearError() {

@@ -48,6 +48,7 @@ import com.altruist.ui.theme.LightYellowSearchScreen
 import com.altruist.ui.theme.TitleMediumTextStyle
 import com.altruist.ui.theme.YellowLightTransparent
 import com.altruist.ui.theme.YellowSearchScreen
+import com.altruist.utils.enums.RequestStatus
 import com.altruist.utils.getTimeAgoText
 import java.util.Locale
 
@@ -63,6 +64,7 @@ fun PostDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()
     val requestSuccessMessage by viewModel.requestSuccessMessage.collectAsState()
+    val requestStatus by viewModel.requestStatus.collectAsState()
 
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
@@ -85,12 +87,10 @@ fun PostDetailScreen(
         viewModel.clearRequestSuccess()
     }
 
-    /*
-    LaunchedEffect(post) {
-        viewModel.onPostChange(post)
+    LaunchedEffect(post.id_post) {
+        viewModel.getRequestStatus(post.id_post, post.user.id_user)
     }
 
-     */
 
     AltruistScreenWrapper(
         statusBarColor = White,
@@ -316,12 +316,26 @@ fun PostDetailScreen(
                             )
                         }
 
-                        SmallSecondaryButton(
-                            text = "Solicitar",
-                            onClick = {
-                                viewModel.sendRequest(post.id_post, post.user.id_user)
-                            }
-                        )
+                        if (requestStatus == RequestStatus.REQUESTED) {
+                            SmallSecondaryButton(
+                                text = "Solicitado",
+                                onClick = {},
+                                enabled = false,
+                                containerColor = Color.LightGray,
+                                contentColor = Color.DarkGray
+                            )
+                        } else {
+                            SmallSecondaryButton(
+                                text = "Solicitar",
+                                onClick = {
+                                    viewModel.sendRequest(post.id_post, post.user.id_user)
+                                },
+                                enabled = true,
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+
                     }
                 }
             }
