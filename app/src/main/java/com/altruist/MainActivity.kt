@@ -33,11 +33,13 @@ import com.altruist.ui.screens.register.RegisterScreen5
 import com.altruist.ui.screens.search_post.SearchPostScreen1
 import com.altruist.ui.screens.search_post.SearchPostScreen2
 import com.altruist.ui.screens.search_post.SearchPostScreen3
+import com.altruist.ui.screens.user_posts.UserPostsScreen
 import com.altruist.utils.LocationUtils
 import com.altruist.viewmodel.CreatePostViewModel
 import com.altruist.viewmodel.RegisterViewModel
 import com.altruist.viewmodel.SearchPostViewModel
 import com.altruist.viewmodel.SharedViewModel
+import com.altruist.viewmodel.UserPostsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -78,6 +80,10 @@ object NavRoutes {
     const val SEARCHPOST3 = "searchPost3"
 
     const val POSTDETAIL = "postDetail"
+
+    const val USERPOSTSGRAPH = "userPosts"
+    const val USERPOSTS1 = "userPosts1"
+    const val USERPOSTS2 = "userPosts2"
 
 }
 
@@ -197,7 +203,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.SEARCHPOSTGRAPH)
                         },
                         onMisDonacionesClick = {
-                            navController.navigate(NavRoutes.MAINMENU)
+                            navController.navigate(NavRoutes.USERPOSTSGRAPH)
                         },
                         onMensajesClick = {
                             navController.navigate(NavRoutes.MAINMENU)
@@ -334,7 +340,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         },
                         onMessagesClick = {
                             navController.navigate(NavRoutes.MAINMENU)
-                        },
+                        }
                     )
                 }
             }
@@ -343,6 +349,24 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                 sharedViewModel.selectedPost.value?.let { it1 ->
                     PostDetailScreen(
                         post = it1
+                    )
+                }
+            }
+
+            navigation(
+                startDestination = NavRoutes.USERPOSTS1,
+                route = NavRoutes.USERPOSTSGRAPH
+            ) {
+                composable(NavRoutes.USERPOSTS1) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.USERPOSTSGRAPH)
+                    }
+                    val viewModel: UserPostsViewModel = hiltViewModel(parentEntry)
+                    UserPostsScreen(
+                        viewModel = viewModel,
+                        onViewInterestedClick = { postId ->
+                            navController.navigate("${NavRoutes.POSTDETAIL}?postId=$postId")
+                        }
                     )
                 }
             }

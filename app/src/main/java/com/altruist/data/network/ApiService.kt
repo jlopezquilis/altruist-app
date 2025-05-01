@@ -61,6 +61,9 @@ interface ApiService {
         @Query("maxDistanceKm") maxDistanceKm: Double
     ): List<Post>
 
+    @GET("api/posts/byUser/{idUser}")
+    suspend fun getPostsByUser(@Path("idUser") idUser: Long): Response<List<Post>>
+
     //REQUEST
     @POST("api/requests/createRequest")
     suspend fun createRequest(@Body request: CreateSimplifiedRequestRequest): Response<Boolean>

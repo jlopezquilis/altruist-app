@@ -75,4 +75,29 @@ class PostRepository @Inject constructor(
         }
     }
 
+    suspend fun getPostsByUser(idUser: Long): Result<List<Post>> {
+        return try {
+            val response = api.getPostsByUser(idUser)
+            if (response.isSuccessful) {
+                val posts = response.body() ?: emptyList()
+                Result.success(posts)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
+                Result.failure(Exception(message))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de red: ${e.message}"))
+        }
+    }
+
+
 }
