@@ -36,6 +36,30 @@ class PostRepository @Inject constructor(
         }
     }
 
+    suspend fun deletePostById(id: Long): Result<Unit> {
+        return try {
+            val response = api.deletePostById(id)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val message = if (errorBody != null) {
+                    try {
+                        JSONObject(errorBody).optString("message", "Error desconocido")
+                    } catch (e: Exception) {
+                        "Error al interpretar el mensaje de error"
+                    }
+                } else {
+                    "Error desconocido"
+                }
+                Result.failure(Exception(message))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de red: ${e.message}"))
+        }
+    }
+
+
 
     suspend fun getPostById(id: Long): Result<Post> {
         return try {

@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.datastore.UserSession
 import com.altruist.data.model.Category
 import com.altruist.data.model.Post
 import com.altruist.data.repository.PostRepository
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchPostViewModel @Inject constructor(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val userSession: UserSession
 ) : ViewModel() {
 
     private val _selectedCategory = MutableStateFlow<Category?>(null)
@@ -56,8 +58,18 @@ class SearchPostViewModel @Inject constructor(
     private val _searchPost2Success = MutableStateFlow(false)
     val searchPost2Success: StateFlow<Boolean> = _searchPost2Success
 
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
+
+    init {
+        viewModelScope.launch {
+            userSession.getUser().collect { user ->
+                _currentUserId.value = user?.id_user
+            }
+        }
+    }
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
@@ -134,8 +146,14 @@ class SearchPostViewModel @Inject constructor(
                 longitude = longitude.value,
                 maxDistanceKm = selectedDistanceKm.value.toDouble()
             ).onSuccess { posts ->
-                allPosts = posts
-                _filteredPosts.value = posts
+                val currentUserId = _currentUserId.value
+                val filtered = if (currentUserId != null) {
+                    posts.filter { it.user.id_user != currentUserId }
+                } else posts
+
+                allPosts = filtered
+                _filteredPosts.value = filtered
+
                 onSuccess()
             }.onFailure {
                 onError("Error al cargar publicaciones: ${it.message}")

@@ -50,6 +50,9 @@ interface ApiService {
     @POST("api/posts/createPost")
     suspend fun createPost(@Body createPostRequest: CreatePostRequest): Response<Long>
 
+    @DELETE("api/posts/{id}")
+    suspend fun deletePostById(@Path("id") id: Long): Response<Unit>
+
     @GET("api/posts/{id}")
     suspend fun getPostById(@Path("id") id: Long): Response<Post>
 

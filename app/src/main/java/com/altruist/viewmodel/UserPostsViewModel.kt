@@ -34,6 +34,10 @@ class UserPostsViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+
     init {
         loadUserPosts()
     }
@@ -44,6 +48,7 @@ class UserPostsViewModel @Inject constructor(
 
     fun loadUserPosts() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 val user = userSession.getUser().firstOrNull()
                 if (user == null) {
@@ -69,12 +74,25 @@ class UserPostsViewModel @Inject constructor(
             } catch (e: Exception) {
                 _errorMessage.value = "Error inesperado: ${e.message}"
             }
+            _isLoading.value = false
         }
     }
 
     fun deletePostFromList(postId: Long) {
         _userPosts.value = _userPosts.value.filterNot { it.post.id_post == postId }
     }
+
+    fun deletePost(postId: Long) {
+        viewModelScope.launch {
+            val result = postRepository.deletePostById(postId)
+            if (result.isSuccess) {
+                _userPosts.value = _userPosts.value.filter { it.post.id_post != postId }
+            } else {
+                _errorMessage.value = result.exceptionOrNull()?.message ?: "Error al eliminar el post"
+            }
+        }
+    }
+
 
     fun getRequestsForPost(postId: Long): List<Request> {
         return _userPosts.value.find { it.post.id_post == postId }?.requests ?: emptyList()

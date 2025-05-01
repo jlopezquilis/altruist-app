@@ -66,6 +66,8 @@ fun PostDetailScreen(
     val requestSuccessMessage by viewModel.requestSuccessMessage.collectAsState()
     val requestStatus by viewModel.requestStatus.collectAsState()
 
+    val isOwnPost = viewModel.isOwnPost(post)
+
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
             snackbarHostState.showSnackbar(
@@ -219,20 +221,23 @@ fun PostDetailScreen(
                                         )
                                     }
 
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_location_marker),
-                                            contentDescription = "Ubicación",
-                                            tint = Color.Gray,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray
-                                        )
+                                    if (!isOwnPost) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_location_marker),
+                                                contentDescription = "Ubicación",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = Color.Gray
+                                            )
+                                        }
                                     }
+
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -316,25 +321,28 @@ fun PostDetailScreen(
                             )
                         }
 
-                        if (requestStatus == RequestStatus.REQUESTED) {
-                            SmallSecondaryButton(
-                                text = "Solicitado",
-                                onClick = {},
-                                enabled = false,
-                                containerColor = Color.LightGray,
-                                contentColor = Color.DarkGray
-                            )
-                        } else {
-                            SmallSecondaryButton(
-                                text = "Solicitar",
-                                onClick = {
-                                    viewModel.sendRequest(post.id_post, post.user.id_user)
-                                },
-                                enabled = true,
-                                containerColor = MaterialTheme.colorScheme.secondary,
-                                contentColor = MaterialTheme.colorScheme.onSecondary
-                            )
+                        if (!isOwnPost) {
+                            if (requestStatus == RequestStatus.REQUESTED) {
+                                SmallSecondaryButton(
+                                    text = "Solicitado",
+                                    onClick = {},
+                                    enabled = false,
+                                    containerColor = Color.LightGray,
+                                    contentColor = Color.DarkGray
+                                )
+                            } else {
+                                SmallSecondaryButton(
+                                    text = "Solicitar",
+                                    onClick = {
+                                        viewModel.sendRequest(post.id_post, post.user.id_user)
+                                    },
+                                    enabled = true,
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                    contentColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
                         }
+
 
                     }
                 }

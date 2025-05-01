@@ -37,6 +37,8 @@ fun UserPostsScreen(
     onViewInterestedClick: (post: Post) -> Unit,
     onViewPostClick: (post: Post) -> Unit
 ) {
+    val isLoading by viewModel.isLoading.collectAsState()
+
     val searchQuery by viewModel.searchQuery.collectAsState()
     val posts by viewModel.filteredUserPosts.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -62,114 +64,131 @@ fun UserPostsScreen(
             containerColor = Color.Transparent
         ) { innerPadding ->
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(White)
-            ) {
-                Column(
+            if (isLoading) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 30.dp)
+                        .padding(innerPadding)
+                        .background(White),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Spacer(modifier = Modifier.height(50.dp))
+                    CircularProgressIndicator()
+                }
+            } else {
 
-                    Text(
-                        text = "Mis donaciones",
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .background(White)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 30.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(50.dp))
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    SearchBarAltruist(
-                        value = searchQuery,
-                        onValueChange = { viewModel.onSearchQueryChange(it) },
-                        placeholder = "Buscar por título",
-                        modifier = Modifier.fillMaxWidth(),
-                        backgroundColor = YellowSearchScreen,
-                        height = 56.dp,
-                        borderWidth = 0.dp
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    if (posts.isEmpty()) {
                         Text(
-                            text = "No has publicado ninguna donación.",
-                            color = Color.Gray,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                                .padding(top = 80.dp)
+                            text = "Mis donaciones",
+                            style = MaterialTheme.typography.titleLarge
                         )
-                    } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(bottom = 40.dp)
-                        ) {
 
-                            items(posts, key = { it.post.id_post }) { userPostUI ->
-                                var visible by remember { mutableStateOf(true) }
-                                var showDialog by remember { mutableStateOf(false) }
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                                AnimatedVisibility(
-                                    visible = visible,
-                                    exit = fadeOut() + shrinkVertically()
-                                ) {
-                                    UserPostItem(
-                                        userPostUI = userPostUI,
-                                        onDeleteClick = {
-                                            showDialog = true
-                                        },
-                                        onViewInterestedClick = {
-                                            onViewInterestedClick(userPostUI.post)
-                                        },
-                                        onPostItemClick = {
-                                            onViewPostClick(userPostUI.post)
-                                        }
-                                    )
-                                }
+                        SearchBarAltruist(
+                            value = searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChange(it) },
+                            placeholder = "Buscar por título",
+                            modifier = Modifier.fillMaxWidth(),
+                            backgroundColor = YellowSearchScreen,
+                            height = 56.dp,
+                            borderWidth = 0.dp
+                        )
 
-                                if (showDialog) {
-                                    AlertDialog(
-                                        onDismissRequest = { showDialog = false },
-                                        title = { Text(
-                                            text = "¿Eliminar publicación?",
-                                            style = MaterialTheme.typography.titleMedium
-                                        ) },
-                                        text = { Text(
-                                            text = "Esta acción no se puede deshacer.",
-                                            style = MaterialTheme.typography.bodyMedium
-                                        ) },
-                                        confirmButton = {
-                                            TextButton(onClick = {
-                                                showDialog = false
-                                                visible = false
-                                                coroutineScope.launch {
-                                                    kotlinx.coroutines.delay(300)
-                                                    viewModel.deletePostFromList(userPostUI.post.id_post)
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        if (posts.isEmpty()) {
+                            Text(
+                                text = "No has publicado ninguna donación.",
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .padding(top = 80.dp)
+                            )
+                        } else {
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                contentPadding = PaddingValues(bottom = 40.dp)
+                            ) {
+
+                                items(posts, key = { it.post.id_post }) { userPostUI ->
+                                    var visible by remember { mutableStateOf(true) }
+                                    var showDialog by remember { mutableStateOf(false) }
+
+                                    AnimatedVisibility(
+                                        visible = visible,
+                                        exit = fadeOut() + shrinkVertically()
+                                    ) {
+                                        UserPostItem(
+                                            userPostUI = userPostUI,
+                                            onDeleteClick = {
+                                                showDialog = true
+                                            },
+                                            onViewInterestedClick = {
+                                                onViewInterestedClick(userPostUI.post)
+                                            },
+                                            onPostItemClick = {
+                                                onViewPostClick(userPostUI.post)
+                                            }
+                                        )
+                                    }
+
+                                    if (showDialog) {
+                                        AlertDialog(
+                                            onDismissRequest = { showDialog = false },
+                                            title = {
+                                                Text(
+                                                    text = "¿Eliminar publicación?",
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                            },
+                                            text = {
+                                                Text(
+                                                    text = "Esta acción no se puede deshacer.",
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            },
+                                            confirmButton = {
+                                                TextButton(onClick = {
+                                                    showDialog = false
+                                                    visible = false
+                                                    coroutineScope.launch {
+                                                        kotlinx.coroutines.delay(300)
+                                                        viewModel.deletePost(userPostUI.post.id_post)
+                                                    }
+                                                }) {
+                                                    Text(
+                                                        text = "Sí",
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = MaterialTheme.colorScheme.error
+                                                    )
                                                 }
-                                            }) {
-                                                Text(
-                                                    text = "Sí",
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = MaterialTheme.colorScheme.error
-                                                )
+                                            },
+                                            dismissButton = {
+                                                TextButton(onClick = { showDialog = false }) {
+                                                    Text(
+                                                        text = "No",
+                                                        style = MaterialTheme.typography.labelMedium
+                                                    )
+                                                }
                                             }
-                                        },
-                                        dismissButton = {
-                                            TextButton(onClick = { showDialog = false }) {
-                                                Text(
-                                                    text = "No",
-                                                    style = MaterialTheme.typography.labelMedium
-                                                )
-                                            }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
+
+
                             }
-
-
                         }
                     }
                 }

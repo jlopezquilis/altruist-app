@@ -2,6 +2,7 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.altruist.data.datastore.UserSession
 import com.altruist.data.model.Post
 import com.altruist.data.network.dto.request.CreateSimplifiedRequestRequest
 import com.altruist.data.repository.PostRepository
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PostDetailViewModel @Inject constructor(
     private val postRepository: PostRepository,
-    private val requestRepository: RequestRepository
+    private val requestRepository: RequestRepository,
+    private val userSession: UserSession
 ) : ViewModel() {
 
     private val _post = MutableStateFlow<Post?>(null)
@@ -34,6 +36,15 @@ class PostDetailViewModel @Inject constructor(
     private val _requestSuccessMessage = MutableStateFlow<String?>(null)
     val requestSuccessMessage: StateFlow<String?> = _requestSuccessMessage
 
+    private val _currentUserId = MutableStateFlow<Long?>(null)
+
+    init {
+        viewModelScope.launch {
+            userSession.getUser().collect { user ->
+                _currentUserId.value = user?.id_user
+            }
+        }
+    }
 
     fun onPostChange(post: Post) {
         _post.value = post
@@ -100,7 +111,9 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-
+    fun isOwnPost(post: Post): Boolean {
+        return _currentUserId.value == post.user.id_user
+    }
 
     fun clearError() {
         _errorMessage.value = null
