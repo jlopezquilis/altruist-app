@@ -48,6 +48,8 @@ fun SearchPostScreen3(
 ) {
     val sharedViewModel: SharedViewModel = hiltViewModel()
 
+    val isLoading by viewModel.isLoading.collectAsState()
+
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val selectedDistanceKm by viewModel.selectedDistanceKm.collectAsState()
     val locationName by viewModel.locationName.collectAsState()
@@ -109,125 +111,137 @@ fun SearchPostScreen3(
             }
         ) { innerPadding ->
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(color = White)
-            ) {
-                Column(
+            if (isLoading) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 30.dp),
-                    verticalArrangement = Arrangement.Top
+                        .padding(innerPadding)
+                        .background(White),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Spacer(modifier = Modifier.height(50.dp))
-
-                    SearchBarAltruist (
-                        value = searchQuery,
-                        onValueChange = { newSearchQuery ->
-                            viewModel.onSearchQueryChange(newSearchQuery)
-                        },
-                        placeholder = "Busca algo más concreto",
+                    CircularProgressIndicator()
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .background(color = White)
+                ) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        backgroundColor = YellowSearchScreen,
-                        height = 56.dp,
-                        borderWidth = 0.dp
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    FlowRow(
-                        mainAxisSpacing = 12.dp,
-                        crossAxisSpacing = 12.dp,
-                        modifier = Modifier.fillMaxWidth()
+                            .fillMaxSize()
+                            .padding(horizontal = 30.dp),
+                        verticalArrangement = Arrangement.Top
                     ) {
-                        Box {
-                            selectedCategory?.let {
-                                FilterSmallButton(
-                                    text = it.name,
-                                    icon = painterResource(id = R.drawable.ic_categories),
-                                    onClick = {
-                                        isDropdownExpanded = true
+                        Spacer(modifier = Modifier.height(50.dp))
+
+                        SearchBarAltruist(
+                            value = searchQuery,
+                            onValueChange = { newSearchQuery ->
+                                viewModel.onSearchQueryChange(newSearchQuery)
+                            },
+                            placeholder = "Busca algo más concreto",
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            backgroundColor = YellowSearchScreen,
+                            height = 56.dp,
+                            borderWidth = 0.dp
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        FlowRow(
+                            mainAxisSpacing = 12.dp,
+                            crossAxisSpacing = 12.dp,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Box {
+                                selectedCategory?.let {
+                                    FilterSmallButton(
+                                        text = it.name,
+                                        icon = painterResource(id = R.drawable.ic_categories),
+                                        onClick = {
+                                            isDropdownExpanded = true
+                                        }
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = isDropdownExpanded,
+                                    onDismissRequest = { isDropdownExpanded = false }
+                                ) {
+                                    categoriesWithAll.forEach { category ->
+                                        DropdownMenuItem(
+                                            text = { Text(category.name) },
+                                            onClick = {
+                                                viewModel.onCategoryChange(category)
+                                                viewModel.loadFilteredPosts(
+                                                    onSuccess = {},
+                                                    onError = { error -> viewModel.showError(error) }
+                                                )
+                                                isDropdownExpanded = false
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             }
 
-                            DropdownMenu(
-                                expanded = isDropdownExpanded,
-                                onDismissRequest = { isDropdownExpanded = false }
+
+                            FilterSmallButton(
+                                text = locationName,
+                                icon = painterResource(id = R.drawable.ic_location_marker),
+                                onClick = onChangeLocationClick
+                            )
+
+                            FilterSmallButton(
+                                text = selectedDistanceKm.toInt().toString(),
+                                icon = painterResource(id = R.drawable.ic_range),
+                                onClick = onChangeRangeClick
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        if (posts.isEmpty()) {
+                            Text(
+                                text = "No se han encontrado publicaciones",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Gray,
+                                modifier = Modifier
+                                    .padding(vertical = 40.dp)
+                                    .align(Alignment.CenterHorizontally)
+                            )
+                        } else {
+                            LazyVerticalGrid(
+                                state = gridState,
+                                columns = GridCells.Fixed(2),
+                                contentPadding = PaddingValues(vertical = 5.dp),
+                                verticalArrangement = Arrangement.spacedBy(20.dp),
+                                horizontalArrangement = Arrangement.spacedBy(15.dp)
                             ) {
-                                categoriesWithAll.forEach { category ->
-                                    DropdownMenuItem(
-                                        text = { Text(category.name) },
-                                        onClick = {
-                                            viewModel.onCategoryChange(category)
-                                            viewModel.loadFilteredPosts(
-                                                onSuccess = {},
-                                                onError = { error -> viewModel.showError(error) }
-                                            )
-                                            isDropdownExpanded = false
-                                        }
+                                items(posts) { post ->
+                                    PostItem(
+                                        viewModel = viewModel,
+                                        post = post,
+                                        onPostItemClick = { onPostItemClick(post) }
                                     )
                                 }
                             }
                         }
-
-
-                        FilterSmallButton(
-                            text = locationName,
-                            icon = painterResource(id = R.drawable.ic_location_marker),
-                            onClick = onChangeLocationClick
-                        )
-
-                        FilterSmallButton(
-                            text = selectedDistanceKm.toInt().toString(),
-                            icon = painterResource(id = R.drawable.ic_range),
-                            onClick = onChangeRangeClick
-                        )
                     }
+                    CircleButtonWithoutText(
+                        iconDescription = "Mensajes",
+                        icon = R.drawable.ic_chat,
+                        size = 70.dp,
+                        imageSize = 35.dp,
+                        onClick = onMessagesClick,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 20.dp, bottom = 20.dp)
+                    )
 
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    if (posts.isEmpty()) {
-                        Text(
-                            text = "No se han encontrado publicaciones",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray,
-                            modifier = Modifier
-                                .padding(vertical = 40.dp)
-                                .align(Alignment.CenterHorizontally)
-                        )
-                    } else {
-                        LazyVerticalGrid(
-                            state = gridState,
-                            columns = GridCells.Fixed(2),
-                            contentPadding = PaddingValues(vertical = 5.dp),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                            horizontalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-                            items(posts) { post ->
-                                PostItem(
-                                    viewModel = viewModel,
-                                    post = post,
-                                    onPostItemClick = { onPostItemClick(post) }
-                                )
-                            }
-                        }
-                    }
                 }
-                CircleButtonWithoutText(
-                    iconDescription = "Mensajes",
-                    icon = R.drawable.ic_chat,
-                    size = 70.dp,
-                    imageSize = 35.dp,
-                    onClick = onMessagesClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 20.dp, bottom = 20.dp)
-                )
-
             }
         }
     }

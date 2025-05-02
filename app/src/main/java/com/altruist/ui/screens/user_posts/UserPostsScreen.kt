@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.altruist.data.model.Post
+import com.altruist.data.model.User
 import com.altruist.utils.dto.UserPostUI
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
@@ -33,8 +34,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun UserPostsScreen(
-    viewModel: UserPostsViewModel = hiltViewModel(),
-    onViewInterestedClick: (post: Post) -> Unit,
+    viewModel: UserPostsViewModel,
+    onViewInterestedClick: (userPostUI: UserPostUI) -> Unit,
     onViewPostClick: (post: Post) -> Unit
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
@@ -136,7 +137,7 @@ fun UserPostsScreen(
                                                 showDialog = true
                                             },
                                             onViewInterestedClick = {
-                                                onViewInterestedClick(userPostUI.post)
+                                                onViewInterestedClick(userPostUI)
                                             },
                                             onPostItemClick = {
                                                 onViewPostClick(userPostUI.post)

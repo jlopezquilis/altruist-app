@@ -33,6 +33,7 @@ import com.altruist.ui.screens.register.RegisterScreen5
 import com.altruist.ui.screens.search_post.SearchPostScreen1
 import com.altruist.ui.screens.search_post.SearchPostScreen2
 import com.altruist.ui.screens.search_post.SearchPostScreen3
+import com.altruist.ui.screens.user_posts.UserPostApplicantsScreen
 import com.altruist.ui.screens.user_posts.UserPostsScreen
 import com.altruist.utils.LocationUtils
 import com.altruist.viewmodel.CreatePostViewModel
@@ -364,12 +365,31 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                     val viewModel: UserPostsViewModel = hiltViewModel(parentEntry)
                     UserPostsScreen(
                         viewModel = viewModel,
-                        onViewInterestedClick = { postId ->
-                            navController.navigate("${NavRoutes.POSTDETAIL}?postId=$postId")
+                        onViewInterestedClick = { userPostUI ->
+                            viewModel.onUserPostApplicantsSelectedChange(userPostUI)
+                            navController.navigate(NavRoutes.USERPOSTS2)
                         },
                         onViewPostClick = { post ->
                             sharedViewModel.onSelectedPostChange(post)
                             navController.navigate(NavRoutes.POSTDETAIL)
+                        }
+                    )
+                }
+
+                composable(NavRoutes.USERPOSTS2) { backStackEntry ->
+                    val parentEntry = remember(backStackEntry) {
+                        navController.getBackStackEntry(NavRoutes.USERPOSTSGRAPH)
+                    }
+                    val viewModel: UserPostsViewModel = hiltViewModel(parentEntry)
+                    UserPostApplicantsScreen (
+                        viewModel = viewModel,
+                        onPostItemClick = { post ->
+                            sharedViewModel.onSelectedPostChange(post)
+                            navController.navigate(NavRoutes.POSTDETAIL)
+                        },
+                        userPost = viewModel.userPostApplicantsSelected.value,
+                        onOpenChatClick = {
+                            navController.navigate(NavRoutes.MAINMENU)
                         }
                     )
                 }

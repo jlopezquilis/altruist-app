@@ -3,6 +3,9 @@ package com.altruist.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.data.datastore.UserSession
+import com.altruist.data.model.Category
+import com.altruist.data.model.Post
+import com.altruist.data.model.User
 import com.altruist.data.model.request.Request
 import com.altruist.data.repository.PostRepository
 import com.altruist.data.repository.RequestRepository
@@ -10,6 +13,7 @@ import com.altruist.utils.dto.UserPostUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 
@@ -31,6 +35,22 @@ class UserPostsViewModel @Inject constructor(
         else posts.filter { it.post.title.contains(query, ignoreCase = true) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val _userPostApplicantsSelected = MutableStateFlow<UserPostUI>(UserPostUI(Post(
+        id_post = 0,
+        title = "",
+        description = "",
+        status = "",
+        quality = "",
+        latitude = 0.0,
+        longitude = 0.0,
+        date_created = Date().toString(),
+        category = Category(0, "", "", ""),
+        user = User(0, "", "", "", "", "", "", "", "", false),
+        imageUrls = emptyList(),
+        distanceFromFilter = 0.0,
+    ), emptyList()))
+    val userPostApplicantsSelected: StateFlow<UserPostUI> = _userPostApplicantsSelected
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -44,6 +64,10 @@ class UserPostsViewModel @Inject constructor(
 
     fun onSearchQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
+    }
+
+    fun onUserPostApplicantsSelectedChange(userPostUI: UserPostUI) {
+        _userPostApplicantsSelected.value = userPostUI
     }
 
     fun loadUserPosts() {

@@ -140,6 +140,7 @@ class SearchPostViewModel @Inject constructor(
         onError: (String) -> Unit = {}
     ) {
         viewModelScope.launch {
+            _isLoading.value = true
             postRepository.getFilteredPosts(
                 idCategory = selectedCategory.value?.id_category ?: return@launch,
                 latitude = latitude.value,
@@ -158,6 +159,7 @@ class SearchPostViewModel @Inject constructor(
             }.onFailure {
                 onError("Error al cargar publicaciones: ${it.message}")
             }
+            _isLoading.value = false
         }
     }
 
