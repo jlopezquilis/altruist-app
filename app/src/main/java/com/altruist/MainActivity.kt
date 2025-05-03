@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.altruist.ui.screens.ChatScreen
 import com.altruist.ui.screens.LocationPermissionScreen
 import com.altruist.ui.screens.LoginScreen
 import com.altruist.ui.screens.create_post.CreatePostScreen1
@@ -85,6 +86,8 @@ object NavRoutes {
     const val USERPOSTSGRAPH = "userPosts"
     const val USERPOSTS1 = "userPosts1"
     const val USERPOSTS2 = "userPosts2"
+
+    const val CHAT = "chat"
 
 }
 
@@ -388,9 +391,19 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.POSTDETAIL)
                         },
                         userPost = viewModel.userPostApplicantsSelected.value,
-                        onOpenChatClick = {
-                            navController.navigate(NavRoutes.MAINMENU)
+                        onOpenChatClick = { user ->
+                            sharedViewModel.onSelectedChatChange(user.id_user)
+                            navController.navigate(NavRoutes.CHAT)
                         }
+                    )
+                }
+            }
+
+            composable(NavRoutes.CHAT) {
+                sharedViewModel.selectedChatUserID.value?.let { it1 ->
+                    ChatScreen(
+                        receiverUserId = it1,
+                        viewModel = hiltViewModel()
                     )
                 }
             }

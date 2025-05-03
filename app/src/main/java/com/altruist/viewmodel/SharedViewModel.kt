@@ -24,6 +24,9 @@ class SharedViewModel @Inject constructor(
     private val _selectedPost = MutableStateFlow<Post?>(null)
     val selectedPost: StateFlow<Post?> = _selectedPost
 
+    private val _selectedChatUserID = MutableStateFlow<Long?>(0)
+    val selectedChatUserID: StateFlow<Long?> = _selectedChatUserID
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -52,6 +55,10 @@ class SharedViewModel @Inject constructor(
 
     fun onSelectedPostChange(post: Post) {
         _selectedPost.value = post
+    }
+
+    fun onSelectedChatChange(userId: Long) {
+        _selectedChatUserID.value = userId
     }
 
 }

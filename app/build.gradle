@@ -107,9 +107,12 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     //Google Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+    implementation platform("com.google.firebase:firebase-bom:32.2.3")
     //Firebase Storage
     implementation("com.google.firebase:firebase-storage")
+    //Firebase Firestore (for messaging)
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Google Maps Compose
     implementation "com.google.maps.android:maps-compose:2.5.0"
