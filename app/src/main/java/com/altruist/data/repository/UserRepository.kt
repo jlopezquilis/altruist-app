@@ -82,6 +82,21 @@ class UserRepository @Inject constructor(
         }
     }
 
+    suspend fun getUserById(id: Long): Result<User> {
+        return try {
+            val response = api.getUserById(id)
+            if (response.isSuccessful) {
+                val user = response.body()
+                    ?: return Result.failure(Exception("Respuesta vacía"))
+                Result.success(user)
+            } else {
+                Result.failure(Exception("Error ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(Exception("Error de red: ${e.message}"))
+        }
+    }
+
     fun getLoggedInUser(): Flow<User?> = userSession.getUser()
 
     suspend fun checkEmailExists(email: String): Boolean {

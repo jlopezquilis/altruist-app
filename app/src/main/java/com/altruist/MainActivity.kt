@@ -391,8 +391,9 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.POSTDETAIL)
                         },
                         userPost = viewModel.userPostApplicantsSelected.value,
-                        onOpenChatClick = { user ->
+                        onOpenChatClick = { user, post ->
                             sharedViewModel.onSelectedChatChange(user.id_user)
+                            sharedViewModel.onSelectedPostChange(post)
                             navController.navigate(NavRoutes.CHAT)
                         }
                     )
@@ -400,11 +401,14 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
             }
 
             composable(NavRoutes.CHAT) {
-                sharedViewModel.selectedChatUserID.value?.let { it1 ->
-                    ChatScreen(
-                        receiverUserId = it1,
-                        viewModel = hiltViewModel()
-                    )
+                sharedViewModel.selectedChatUserID.value?.let { id ->
+                    sharedViewModel.selectedPost.value?.let { post ->
+                        ChatScreen(
+                            relatedPost = post,
+                            receiverUserId = id,
+                            viewModel = hiltViewModel()
+                        )
+                    }
                 }
             }
 

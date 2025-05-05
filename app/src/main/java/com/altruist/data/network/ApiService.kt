@@ -42,6 +42,9 @@ interface ApiService {
     @POST("api/users/create")
     suspend fun createUser(@Body user: CreateUserRequest): Response<CreateUserRequest>
 
+    @GET("api/users/{id}")
+    suspend fun getUserById(@Path("id") id: Long): Response<User>
+
     //CATEGORIES
     @GET("api/categories")
     suspend fun getAllCategories(): Response<List<AllCategoriesResponse>>

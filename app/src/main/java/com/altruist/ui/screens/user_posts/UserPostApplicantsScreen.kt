@@ -33,7 +33,7 @@ fun UserPostApplicantsScreen(
     viewModel: UserPostsViewModel,
     onPostItemClick: (Post) -> Unit,
     userPost: UserPostUI,
-    onOpenChatClick: (User) -> Unit
+    onOpenChatClick: (User, Post) -> Unit
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -142,8 +142,13 @@ fun UserPostApplicantsScreen(
                                         style = MaterialTheme.typography.bodyMedium,
                                         modifier = Modifier.weight(1f)
                                     )
+                                    Text(
+                                        text = "${request.user.id_user}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
                                     SmallSecondaryButton(
-                                        onClick = { onOpenChatClick(request.user) },
+                                        onClick = { onOpenChatClick(request.user, userPost.post) },
                                         text = "Abrir chat",
                                         enabled = true,
                                         containerColor = MaterialTheme.colorScheme.secondary,
