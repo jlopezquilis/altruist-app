@@ -408,6 +408,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         ChatScreen(
                             relatedPost = post,
                             receiverUserId = id,
+                            navController = navController,
                             viewModel = hiltViewModel()
                         )
                     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.altruist.data.datastore.UserSession
 import com.altruist.data.model.User
 import com.altruist.data.model.chat.Message
+import com.altruist.data.repository.PostRepository
 import com.altruist.data.repository.UserRepository
 import com.altruist.utils.generateChatId
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,6 +21,7 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     private val userSession: UserSession,
     private val userRepository: UserRepository,
+    private val postRepository: PostRepository,
     private val firestore: FirebaseFirestore
 ) : ViewModel() {
 
@@ -39,6 +41,9 @@ class ChatViewModel @Inject constructor(
 
     private val _receiverUser = MutableStateFlow<User?>(null)
     val receiverUser: StateFlow<User?> = _receiverUser
+
+    private val _shouldNavigateBack = MutableStateFlow(false)
+    val shouldNavigateBack: StateFlow<Boolean> = _shouldNavigateBack
 
     init {
         viewModelScope.launch {
@@ -129,4 +134,49 @@ class ChatViewModel @Inject constructor(
             _isLoading.value = false
         }
     }
+
+    fun closeDonation(receiverUserId: Long, senderUserId: Long, idPost: Long) {
+        val chatId = generateChatId(receiverUserId, senderUserId, idPost)
+
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            postRepository.deletePostById(idPost).onFailure { error ->
+                _errorMessage.value = "Error al eliminar el post: ${error.message}"
+                _isLoading.value = false
+                return@launch
+            }
+
+            val chatRef = firestore.collection("chats").document(chatId)
+            chatRef.collection("messages")
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val batch = firestore.batch()
+                    for (doc in querySnapshot.documents) {
+                        batch.delete(doc.reference)
+                    }
+                    batch.commit().addOnSuccessListener {
+                        chatRef.delete().addOnSuccessListener {
+                            _shouldNavigateBack.value = true
+                            _isLoading.value = false
+                        }.addOnFailureListener {
+                            _errorMessage.value = "Error al eliminar el chat"
+                            _isLoading.value = false
+                        }
+                    }.addOnFailureListener {
+                        _errorMessage.value = "Error al eliminar los mensajes"
+                        _isLoading.value = false
+                    }
+                }
+                .addOnFailureListener {
+                    _errorMessage.value = "Error al obtener los mensajes"
+                    _isLoading.value = false
+                }
+        }
+    }
+
+    fun clearNavigationFlag() {
+        _shouldNavigateBack.value = false
+    }
+
 }

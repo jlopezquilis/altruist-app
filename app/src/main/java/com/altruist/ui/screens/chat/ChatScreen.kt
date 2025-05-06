@@ -29,11 +29,13 @@ import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.ChatViewModel
 import androidx.compose.foundation.layout.imePadding
+import androidx.navigation.NavController
 
 @Composable
 fun ChatScreen(
     relatedPost: Post,
     receiverUserId: Long,
+    navController: NavController,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -44,8 +46,20 @@ fun ChatScreen(
     val currentUserId by viewModel.currentUserId.collectAsState()
     val receiverUser by viewModel.receiverUser.collectAsState()
 
+    var showDialog by remember { mutableStateOf(false) }
+    var isButtonVisible by remember { mutableStateOf(true) }
+
     val listState = rememberLazyListState()
     val isOwnPost = currentUserId == relatedPost.user.id_user
+
+    val shouldNavigateBack by viewModel.shouldNavigateBack.collectAsState()
+
+    LaunchedEffect(shouldNavigateBack) {
+        if (shouldNavigateBack) {
+            navController.popBackStack()
+            viewModel.clearNavigationFlag()
+        }
+    }
 
     LaunchedEffect(errorMessage) {
         if (!errorMessage.isNullOrBlank()) {
@@ -125,20 +139,61 @@ fun ChatScreen(
                                 }
                             }
 
-                            if (isOwnPost) {
+                            if (isOwnPost && isButtonVisible) {
                                 Button(
-                                    onClick = { /* TODO: Acción aceptar donación */ },
+                                    onClick = { showDialog = true },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = Color(0xFFE59730),
                                         contentColor = Color.White
                                     )
                                 ) {
                                     Text(
-                                        text = "Aceptar\ndonación",
+                                        text = "Cerrar\ndonación",
                                         style = MaterialTheme.typography.labelMedium,
                                         textAlign = TextAlign.Center
                                     )
                                 }
+                            }
+
+                            if (showDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDialog = false },
+                                    title = {
+                                        Text(
+                                            text = "¿Cerrar donación?",
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                    },
+                                    text = {
+                                        Text(
+                                            text = "Esta acción eliminará el post y el chat asociado.\n¿Estás segurx?",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    },
+                                    confirmButton = {
+                                        TextButton(onClick = {
+                                            showDialog = false
+                                            isButtonVisible = false
+                                            currentUserId?.let {
+                                                viewModel.closeDonation(receiverUserId, it, relatedPost.id_post)
+                                            }
+                                        }) {
+                                            Text(
+                                                text = "Sí",
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
+                                    dismissButton = {
+                                        TextButton(onClick = { showDialog = false }) {
+                                            Text(
+                                                text = "No",
+                                                style = MaterialTheme.typography.labelMedium
+                                            )
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
