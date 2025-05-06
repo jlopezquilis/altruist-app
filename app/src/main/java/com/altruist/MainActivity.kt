@@ -409,6 +409,10 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             relatedPost = post,
                             receiverUserId = id,
                             navController = navController,
+                            onPostItemClick = { post ->
+                                sharedViewModel.onSelectedPostChange(post)
+                                navController.navigate(NavRoutes.POSTDETAIL)
+                            },
                             viewModel = hiltViewModel()
                         )
                     }

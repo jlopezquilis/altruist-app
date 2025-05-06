@@ -53,6 +53,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun onIsLoadingChange(b: Boolean) {
+        _isLoading.value = b
+    }
+
     fun onMessageChange(newMessage: TextFieldValue) {
         _currentMessage.value = newMessage
     }
