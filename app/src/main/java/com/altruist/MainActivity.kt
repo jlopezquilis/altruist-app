@@ -213,7 +213,8 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         },
                         onMensajesClick = {
                             navController.navigate(NavRoutes.CHATLIST)
-                        }
+                        },
+                        navController = navController
                 )
             }
 

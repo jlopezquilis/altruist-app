@@ -183,4 +183,10 @@ class ChatViewModel @Inject constructor(
         _shouldNavigateBack.value = false
     }
 
+    fun logout() {
+        viewModelScope.launch {
+            userSession.clearUser()
+        }
+    }
+
 }

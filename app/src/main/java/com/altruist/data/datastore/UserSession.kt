@@ -71,6 +71,7 @@ class UserSession(private val context: Context) {
         saveUser(updatedUser)
     }
 
+
     suspend fun clearUser() {
         context.dataStore.edit { it.clear() }
     }
