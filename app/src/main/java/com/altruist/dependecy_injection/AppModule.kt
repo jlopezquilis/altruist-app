@@ -4,6 +4,7 @@ import android.content.Context
 import com.altruist.data.datastore.UserSession
 import com.altruist.data.network.ApiService
 import com.altruist.data.repository.UserRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -61,5 +62,11 @@ object AppModule {
         userSession: UserSession
     ): UserRepository {
         return UserRepository(apiService, userSession)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
     }
 }

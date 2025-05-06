@@ -1,6 +1,5 @@
 package com.altruist.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +7,7 @@ import com.altruist.data.datastore.UserSession
 import com.altruist.data.model.User
 import com.altruist.data.model.chat.Message
 import com.altruist.data.repository.UserRepository
+import com.altruist.utils.generateChatId
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,10 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val userSession: UserSession,
-    private val userRepository: UserRepository // Asegúrate de tener esto implementado
+    private val userRepository: UserRepository,
+    private val firestore: FirebaseFirestore
 ) : ViewModel() {
-
-    private val firestore = FirebaseFirestore.getInstance()
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
@@ -55,7 +54,7 @@ class ChatViewModel @Inject constructor(
 
     fun loadMessages(receiverUserId: Long, postId: Long) {
         val senderId = currentUserId.value ?: return
-        val chatId = getChatId(senderId, receiverUserId, postId)
+        val chatId = generateChatId(receiverUserId, senderId, postId)
 
         firestore.collection("chats")
             .document(chatId)
@@ -81,7 +80,7 @@ class ChatViewModel @Inject constructor(
         val content = _currentMessage.value.text.trim()
         if (content.isEmpty()) return
 
-        val chatId = getChatId(senderId, receiverUserId, postId)
+        val chatId = generateChatId(receiverUserId, senderId, postId)
 
         val message = Message(
             senderId = senderId,
@@ -90,17 +89,34 @@ class ChatViewModel @Inject constructor(
             timestamp = System.currentTimeMillis()
         )
 
-        firestore.collection("chats")
-            .document(chatId)
-            .collection("messages")
-            .add(message)
-            .addOnSuccessListener {
-                _currentMessage.value = TextFieldValue("")
+        // Aegurar que el documento de chat exista
+        val chatRef = firestore.collection("chats").document(chatId)
+        chatRef.get().addOnSuccessListener { docSnapshot ->
+            if (!docSnapshot.exists()) {
+                // Crea el documento del chat con un campo auxiliar
+                chatRef.set(
+                    mapOf(
+                        "createdAt" to System.currentTimeMillis(),
+                        "participants" to listOf(senderId, receiverUserId),
+                        "postId" to postId
+                    )
+                )
             }
-            .addOnFailureListener { error ->
-                _errorMessage.value = "No se pudo enviar el mensaje: ${error.message}"
-            }
+
+            // Añadir el mensaje
+            chatRef.collection("messages")
+                .add(message)
+                .addOnSuccessListener {
+                    _currentMessage.value = TextFieldValue("")
+                }
+                .addOnFailureListener { error ->
+                    _errorMessage.value = "No se pudo enviar el mensaje: ${error.message}"
+                }
+        }.addOnFailureListener { error ->
+            _errorMessage.value = "Error al preparar el chat: ${error.message}"
+        }
     }
+
 
     fun loadReceiverUser(id: Long) {
         viewModelScope.launch {
@@ -112,10 +128,5 @@ class ChatViewModel @Inject constructor(
             }
             _isLoading.value = false
         }
-    }
-
-    private fun getChatId(user1: Long, user2: Long, postId: Long): String {
-        val (first, second) = if (user1 < user2) user1 to user2 else user2 to user1
-        return "$first-$second-post$postId"
     }
 }

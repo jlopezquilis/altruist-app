@@ -17,9 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.altruist.ui.screens.ChatScreen
+import com.altruist.ui.screens.chat.ChatScreen
 import com.altruist.ui.screens.LocationPermissionScreen
 import com.altruist.ui.screens.LoginScreen
+import com.altruist.ui.screens.chat.ChatListScreen
 import com.altruist.ui.screens.create_post.CreatePostScreen1
 import com.altruist.ui.screens.create_post.CreatePostScreen2
 import com.altruist.ui.screens.create_post.CreatePostScreen3
@@ -88,6 +89,7 @@ object NavRoutes {
     const val USERPOSTS2 = "userPosts2"
 
     const val CHAT = "chat"
+    const val CHATLIST = "chatList"
 
 }
 
@@ -210,7 +212,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.USERPOSTSGRAPH)
                         },
                         onMensajesClick = {
-                            navController.navigate(NavRoutes.MAINMENU)
+                            navController.navigate(NavRoutes.CHATLIST)
                         }
                 )
             }
@@ -343,7 +345,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                             navController.navigate(NavRoutes.CreatePostGraph)
                         },
                         onMessagesClick = {
-                            navController.navigate(NavRoutes.MAINMENU)
+                            navController.navigate(NavRoutes.CHATLIST)
                         }
                     )
                 }
@@ -410,6 +412,16 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         )
                     }
                 }
+            }
+
+            composable(NavRoutes.CHATLIST) {
+                ChatListScreen(
+                    navToChat = { post, userId ->
+                        sharedViewModel.onSelectedChatChange(userId)
+                        sharedViewModel.onSelectedPostChange(post)
+                        navController.navigate(NavRoutes.CHAT)
+                    }
+                )
             }
 
         }
