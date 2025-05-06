@@ -30,6 +30,7 @@ import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.ChatViewModel
 import androidx.compose.foundation.layout.imePadding
 import androidx.navigation.NavController
+import com.altruist.NavRoutes
 
 @Composable
 fun ChatScreen(
@@ -56,7 +57,7 @@ fun ChatScreen(
 
     LaunchedEffect(shouldNavigateBack) {
         if (shouldNavigateBack) {
-            navController.popBackStack()
+            navController.navigate(NavRoutes.MAINMENU)
             viewModel.clearNavigationFlag()
         }
     }
@@ -166,7 +167,7 @@ fun ChatScreen(
                                     },
                                     text = {
                                         Text(
-                                            text = "Esta acción eliminará el post y el chat asociado.\n¿Estás segurx?",
+                                            text = "Esta acción eliminará el post y el chat asociado.",
                                             style = MaterialTheme.typography.bodyMedium
                                         )
                                     },

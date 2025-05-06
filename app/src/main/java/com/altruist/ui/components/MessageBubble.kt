@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.altruist.data.model.chat.Message
 import com.altruist.ui.theme.YellowSearchScreen
+import com.altruist.ui.theme.ownMessage
+import com.altruist.ui.theme.theirsMessage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,8 +26,8 @@ import java.util.Locale
 @Composable
 fun MessageBubble(message: Message, isOwnMessage: Boolean) {
     val alignment = if (isOwnMessage) Alignment.End else Alignment.Start
-    val backgroundColor = if (isOwnMessage) MaterialTheme.colorScheme.primary else Color.LightGray
-    val textColor = if (isOwnMessage) Color.White else Color.Black
+    val backgroundColor = if (isOwnMessage) ownMessage else theirsMessage
+    val textColor = Color.Black
 
     Column(
         modifier = Modifier.fillMaxWidth(),

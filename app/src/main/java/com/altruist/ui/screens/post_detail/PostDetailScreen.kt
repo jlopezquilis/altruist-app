@@ -334,7 +334,7 @@ fun PostDetailScreen(
                                 SmallSecondaryButton(
                                     text = "Solicitar",
                                     onClick = {
-                                        viewModel.sendRequest(post.id_post, post.user.id_user)
+                                        viewModel.sendRequest(post.id_post)
                                     },
                                     enabled = true,
                                     containerColor = MaterialTheme.colorScheme.secondary,

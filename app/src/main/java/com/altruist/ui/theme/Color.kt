@@ -25,3 +25,8 @@ val BackgroundBottom = White
 //Principales con transaprencia
 val DarkYellowTransparent = Color(0x85DFA63D)  // Botón principal (Iniciar sesión)
 val YellowLightTransparent = Color(0x55EAD6B1) // Botón secundario (Registrarse)
+
+//Para mensajes
+val ownMessage = Color(0xFFACCFE9)
+val theirsMessage = Color(0xFFE4E4E4)
+

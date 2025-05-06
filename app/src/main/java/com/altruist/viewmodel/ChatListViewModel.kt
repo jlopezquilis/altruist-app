@@ -1,10 +1,8 @@
 package com.altruist.viewmodel
 
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.data.datastore.UserSession
-import com.altruist.data.model.User
 import com.altruist.data.model.chat.ChatPreview
 import com.altruist.data.model.chat.Message
 import com.altruist.data.repository.PostRepository
@@ -16,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val userSession: UserSession,
@@ -54,27 +53,23 @@ class ChatListViewModel @Inject constructor(
         firestore.collection("chats")
             .get()
             .addOnSuccessListener { snapshot ->
-                val chatIds = snapshot.documents.mapNotNull { it.id }
-                    .filter { id ->
-                        val parts = id.split("-post")
-                        if (parts.size != 2) return@filter false
-                        val userParts = parts[0].split("-")
-                        userParts.size == 2 && userParts.any { it == userId.toString() }
-                    }
+                val validChatData = snapshot.documents.mapNotNull { doc ->
+                    val id = doc.id
+                    val parts = id.split("-")
+                    if (parts.size != 3) return@mapNotNull null
 
-                chatIds.forEach { chatId ->
-                    val parts = chatId.split("-post")
-                    val userParts = parts[0].split("-")
-                    val postId = parts[1].toLongOrNull() ?: return@forEach
+                    val userId1 = parts[0].toLongOrNull()
+                    val userId2 = parts[1].toLongOrNull()
+                    val postId = parts[2].toLongOrNull()
+                    if (userId1 == null || userId2 == null || postId == null) return@mapNotNull null
 
-                    val receiverId = userParts[0].toLongOrNull()
-                    val senderId = userParts[1].toLongOrNull()
+                    if (userId1 == userId || userId2 == userId) {
+                        Triple(id, listOf(userId1, userId2), postId)
+                    } else null
+                }
 
-                    val otherUserId = when (userId) {
-                        receiverId -> senderId
-                        senderId -> receiverId
-                        else -> null
-                    } ?: return@forEach
+                validChatData.forEach { (chatId, users, postId) ->
+                    val otherUserId = users.first { it != userId }
 
                     firestore.collection("chats")
                         .document(chatId)
@@ -115,4 +110,3 @@ class ChatListViewModel @Inject constructor(
         return sdf.format(java.util.Date(timestamp))
     }
 }
-

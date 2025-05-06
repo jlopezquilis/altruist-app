@@ -65,17 +65,17 @@ class PostDetailViewModel @Inject constructor(
         }
     }
 
-    fun sendRequest(postId: Long, userId: Long) {
+    fun sendRequest(postId: Long) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val request = CreateSimplifiedRequestRequest(userId, postId, RequestStatus.REQUESTED.toString())
+                val request = CreateSimplifiedRequestRequest(_currentUserId.value!!, postId, RequestStatus.REQUESTED.toString())
                 val result = requestRepository.createRequest(request)
                 result.onSuccess {
                     _errorMessage.value = null
                     //Prefijo SUCCESS para alterar estilo Scaffold (mensaje flotante)
                     _requestSuccessMessage.value = "SUCCESS|Solicitud creada con éxito"
-                    getRequestStatus(postId, userId)
+                    getRequestStatus(postId, _currentUserId.value!!)
                 }.onFailure {
                     _errorMessage.value = "Error al enviar la solicitud:\n${it.message}"
                 }
