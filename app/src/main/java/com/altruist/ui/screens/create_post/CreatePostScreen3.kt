@@ -1,11 +1,9 @@
 package com.altruist.ui.screens.create_post
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import androidx.compose.ui.Alignment
-import androidx.annotation.RequiresPermission
 import com.altruist.ui.components.SecondaryButton
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,14 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.altruist.ui.components.AltruistBorderedTextField
-import com.altruist.ui.components.AltruistLabeledTextField
 import com.altruist.ui.components.AltruistSnackbarHost
-import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.DoubleTitleForTextField
 import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.theme.White
@@ -39,7 +32,7 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -58,16 +51,13 @@ fun CreatePostScreen3(
     val geocoder = Geocoder(context)
     val coroutineScope = rememberCoroutineScope()
 
-    var searchQuery by remember { mutableStateOf("") }
-    var searchResult by remember { mutableStateOf<LatLng?>(null) }
+    var searchLocationQuery by remember { mutableStateOf("") }
+    var searchLocationResult by remember { mutableStateOf<LatLng?>(null) }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    val valenciaLatLng = LatLng(39.4699, -0.3763)
-    val initialLatLng = if (latitude == 0.0 && longitude == 0.0) valenciaLatLng else LatLng(latitude, longitude)
-
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(initialLatLng, 12f)
+        position = CameraPosition.fromLatLngZoom(LatLng(latitude, longitude), 12f)
     }
 
     fun hasLocationPermission(): Boolean {
@@ -81,30 +71,29 @@ fun CreatePostScreen3(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     val userLatLng = LatLng(it.latitude, it.longitude)
-                    searchResult = userLatLng
+                    searchLocationResult = userLatLng
                     viewModel.onLocationSelected(it.latitude, it.longitude)
                 }
             }
         } else {
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1001
-            )
+            viewModel.showError("No tenemos permiso para acceder a tu ubicación, pero puedes buscar una localización específica.")
         }
     }
 
-    LaunchedEffect(searchQuery) {
-        if (searchQuery.isNotBlank()) {
-            kotlinx.coroutines.delay(500)
-            viewModel.searchLocation(searchQuery, geocoder) { result ->
-                searchResult = result
+    LaunchedEffect(Unit) {
+        moveToUserLocation()
+    }
+
+    LaunchedEffect(searchLocationQuery) {
+        if (searchLocationQuery.isNotBlank()) {
+            delay(500)
+            viewModel.searchLocation(searchLocationQuery, geocoder) { result ->
+                searchLocationResult = result
                 result?.let { viewModel.onLocationSelected(it.latitude, it.longitude) }
             }
         }
     }
 
-    // Actualizar mapa cuando cambian lat/lon
     LaunchedEffect(latitude, longitude) {
         val newPosition = LatLng(latitude, longitude)
         cameraPositionState.animate(
@@ -169,11 +158,11 @@ fun CreatePostScreen3(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
                         onMapClick = { latLng ->
-                            searchResult = latLng
+                            searchLocationResult = latLng
                             viewModel.onLocationSelected(latLng.latitude, latLng.longitude)
                         }
                     ) {
-                        val markerPosition = searchResult ?: LatLng(latitude, longitude)
+                        val markerPosition = searchLocationResult ?: LatLng(latitude, longitude)
                         Marker(
                             state = MarkerState(position = markerPosition),
                             title = "Ubicación seleccionada"
@@ -181,8 +170,8 @@ fun CreatePostScreen3(
                     }
 
                     SearchBarAltruist (
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
+                        value = searchLocationQuery,
+                        onValueChange = { searchLocationQuery = it },
                         placeholder = "Busca una localización",
                         modifier = Modifier
                             .fillMaxWidth()

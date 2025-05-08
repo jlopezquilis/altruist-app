@@ -214,7 +214,11 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                         onMensajesClick = {
                             navController.navigate(NavRoutes.CHATLIST)
                         },
-                        navController = navController
+                        onLogoutClick = {
+                            navController.navigate(NavRoutes.Welcome) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
                 )
             }
 

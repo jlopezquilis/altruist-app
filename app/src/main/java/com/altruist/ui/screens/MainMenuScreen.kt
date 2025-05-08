@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.altruist.NavRoutes
 import com.altruist.R
 import com.altruist.ui.components.CircleButton
 import com.altruist.ui.theme.BackgroundTop
@@ -33,7 +34,7 @@ fun MainMenuScreen(
     onBuscarClick: () -> Unit,
     onMisDonacionesClick: () -> Unit,
     onMensajesClick: () -> Unit,
-    navController: NavController,
+    onLogoutClick: () -> Unit,
     viewModel: MainMenuViewModel = hiltViewModel()
 ) {
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -164,9 +165,7 @@ fun MainMenuScreen(
                         onClick = {
                             showLogoutDialog = false
                             viewModel.logout()
-                            navController.navigate("login") {
-                                popUpTo(0) { inclusive = true }
-                            }
+                            onLogoutClick()
                         }
                     ) {
                         Text("Sí")
