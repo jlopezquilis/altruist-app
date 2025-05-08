@@ -42,6 +42,8 @@ fun RegisterScreen5(
     val imageUri by viewModel.profilePictureUri.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    val loginSuccess by viewModel.loginSuccess.collectAsState()
+
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
@@ -61,7 +63,7 @@ fun RegisterScreen5(
         }
     }
 
-    if (register5Success) {
+    if (register5Success && loginSuccess) {
         LaunchedEffect(Unit) {
             viewModel.resetRegister4Success()
             viewModel.clearError()
@@ -149,10 +151,10 @@ fun RegisterScreen5(
                 Spacer(modifier = Modifier.weight(0.1f))
 
                 SecondaryButton(
-                    text = if (isLoading) "Cargando..." else "Continuar",
+                    text = if (isLoading) "Cargando..." else "Finalizar",
                     onClick = {viewModel.onContinueFromRegister5Click(context)},
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = true
+                    enabled = !isLoading
                 )
 
                 Spacer(modifier = Modifier.weight(0.15f))

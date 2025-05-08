@@ -27,6 +27,7 @@ import com.altruist.ui.components.AltruistLabeledTextField
 import com.altruist.ui.components.AltruistSnackbarHost
 import com.altruist.ui.components.AltruistTextField
 import com.altruist.ui.components.DoubleTitleForTextField
+import com.altruist.ui.components.SearchBarAltruist
 import com.altruist.ui.theme.White
 import com.altruist.utils.AltruistScreenWrapper
 import com.altruist.viewmodel.CreatePostViewModel
@@ -179,15 +180,17 @@ fun CreatePostScreen3(
                         )
                     }
 
-                    AltruistBorderedTextField(
+                    SearchBarAltruist (
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = "Buscar ubicación",
+                        placeholder = "Busca una localización",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 40.dp, vertical = 20.dp)
+                            .padding(horizontal = 60.dp, vertical = 20.dp)
                             .align(Alignment.TopCenter),
-                        height = 56.dp
+                        backgroundColor = Color.White,
+                        height = 56.dp,
+                        borderWidth = 1.dp
                     )
 
                     IconButton(

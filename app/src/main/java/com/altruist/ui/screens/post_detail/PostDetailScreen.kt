@@ -60,12 +60,10 @@ fun PostDetailScreen(
     viewModel: PostDetailViewModel = hiltViewModel()
 ) {
     val isLoading by viewModel.isLoading.collectAsState()
-
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage by viewModel.errorMessage.collectAsState()
     val requestSuccessMessage by viewModel.requestSuccessMessage.collectAsState()
     val requestStatus by viewModel.requestStatus.collectAsState()
-
     val isOwnPost = viewModel.isOwnPost(post)
 
     LaunchedEffect(errorMessage) {
@@ -92,7 +90,6 @@ fun PostDetailScreen(
     LaunchedEffect(post.id_post) {
         viewModel.getRequestStatus(post.id_post, post.user.id_user)
     }
-
 
     AltruistScreenWrapper(
         statusBarColor = White,
@@ -134,165 +131,169 @@ fun PostDetailScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                         .background(White)
-                        .verticalScroll(rememberScrollState()),
                 ) {
-                    Surface(
+                    // Scrollable content
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
-                        color = YellowSearchScreen,
-                        shadowElevation = 8.dp
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
                     ) {
-                        Column {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(250.dp)
-                                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                            ) {
-                                HorizontalPager(
-                                    state = pagerState,
-                                    modifier = Modifier.fillMaxSize()
-                                ) { page ->
-                                    Image(
-                                        painter = rememberAsyncImagePainter(imageUrls[page]),
-                                        contentDescription = "Imagen $page",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-
-                            Surface(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(20.dp), // altura pequeña solo para el indicador
-                                color = White
-                            ) {
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                            color = YellowSearchScreen,
+                            shadowElevation = 8.dp
+                        ) {
+                            Column {
                                 Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                                 ) {
-                                    DotsIndicator(
-                                        totalDots = imageUrls.size,
-                                        selectedIndex = pagerState.currentPage
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 24.dp)
-                            ) {
-                                Text(
-                                    text = post.title,
-                                    style = TitleMediumTextStyle,
-                                )
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                Text(
-                                    text = "${post.category.name} · ${post.quality ?: "Estado desconocido"}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-
-                                Spacer(modifier = Modifier.height(20.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.ic_clock),
-                                            contentDescription = " Publicado hace",
-                                            tint = Color.Gray,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = getTimeAgoText(post.date_created),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.Gray
+                                    HorizontalPager(
+                                        state = pagerState,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) { page ->
+                                        Image(
+                                            painter = rememberAsyncImagePainter(imageUrls[page]),
+                                            contentDescription = "Imagen $page",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
                                         )
                                     }
+                                }
 
-                                    if (!isOwnPost) {
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(20.dp),
+                                    color = White
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        DotsIndicator(
+                                            totalDots = imageUrls.size,
+                                            selectedIndex = pagerState.currentPage
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 24.dp)
+                                ) {
+                                    Text(
+                                        text = post.title,
+                                        style = TitleMediumTextStyle,
+                                    )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text(
+                                        text = "${post.category.name} · ${post.quality ?: "Estado desconocido"}",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+
+                                    Spacer(modifier = Modifier.height(20.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
-                                                painter = painterResource(id = R.drawable.ic_location_marker),
-                                                contentDescription = "Ubicación",
+                                                painter = painterResource(id = R.drawable.ic_clock),
+                                                contentDescription = "Publicado hace",
                                                 tint = Color.Gray,
                                                 modifier = Modifier.size(16.dp)
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
+                                                text = getTimeAgoText(post.date_created),
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = Color.Gray
                                             )
                                         }
+
+                                        if (!isOwnPost) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    painter = painterResource(id = R.drawable.ic_location_marker),
+                                                    contentDescription = "Ubicación",
+                                                    tint = Color.Gray,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = String.format(Locale.US, "%.1f km", post.distanceFromFilter),
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = Color.Gray
+                                                )
+                                            }
+                                        }
                                     }
 
+                                    Spacer(modifier = Modifier.height(16.dp))
                                 }
-
-                                Spacer(modifier = Modifier.height(16.dp))
                             }
                         }
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = "Descripción",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(horizontal = 24.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = post.description ?: "No hay descripción.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(horizontal = 24.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    Text(
-                        text = "Ubicación",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    )
-
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    GoogleMap(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        cameraPositionState = cameraPositionState
-                    ) {
-                        Circle(
-                            center = LatLng(post.latitude, post.longitude),
-                            radius = 300.0,
-                            strokeColor = DarkYellowTransparent,
-                            fillColor = YellowLightTransparent
+                        Text(
+                            text = "Descripción",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(horizontal = 24.dp)
                         )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = post.description ?: "No hay descripción.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        Text(
+                            text = "Ubicación",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        GoogleMap(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            cameraPositionState = cameraPositionState
+                        ) {
+                            Circle(
+                                center = LatLng(post.latitude, post.longitude),
+                                radius = 300.0,
+                                strokeColor = DarkYellowTransparent,
+                                fillColor = YellowLightTransparent
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(30.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(30.dp))
-
+                    // Bottom fijo
                     Divider(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         color = Color.LightGray,
                         thickness = 1.dp
                     )
@@ -302,7 +303,7 @@ fun PostDetailScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 30.dp),
+                            .padding(horizontal = 30.dp, vertical = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -342,8 +343,6 @@ fun PostDetailScreen(
                                 )
                             }
                         }
-
-
                     }
                 }
             }

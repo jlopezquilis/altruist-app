@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.altruist.R
 import com.altruist.data.network.dto.user.CreateUserRequest
+import com.altruist.data.network.dto.user.LoginResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.altruist.data.repository.UserRepository
 import com.google.firebase.storage.FirebaseStorage
@@ -82,6 +83,12 @@ class RegisterViewModel @Inject constructor(
 
     private val _inputCode = MutableStateFlow("")
     val inputCode: StateFlow<String> = _inputCode
+
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess
+
+    private val _loginResult = MutableStateFlow<Result<LoginResponse>?>(null)
+    val loginResult: StateFlow<Result<LoginResponse>?> = _loginResult
 
     fun onNameChange(value: String) {
         _name.value = value
@@ -336,6 +343,8 @@ class RegisterViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        _isLoading.value = true
+
         val user = CreateUserRequest(
             name = _name.value,
             surname = _surname.value,
@@ -352,10 +361,20 @@ class RegisterViewModel @Inject constructor(
             val result = repository.createUser(user)
             result.onSuccess {
                 onSuccess()
+                viewModelScope.launch {
+                    val loginResponseResult = repository.login(_email.value, _password.value)
+                    loginResponseResult.onSuccess {
+                        _loginSuccess.value = true
+                    }.onFailure {
+                        showError("Error al iniciar sesión.\n${it.message}")
+                    }
+                    _loginResult.value = loginResponseResult
+                }
             }.onFailure {
                 onError("Error al registrar usuario: ${it.message}")
             }
         }
+        _isLoading.value = false
     }
 
 

@@ -192,7 +192,7 @@ fun AltruistApp(sharedViewModel: SharedViewModel) {
                     RegisterScreen5(
                         viewModel = viewModel,
                         onRegister5Success = {
-                            navController.navigate(NavRoutes.Welcome){
+                            navController.navigate(NavRoutes.MAINMENU){
                                 popUpTo(NavRoutes.RegisterGraph) { inclusive = true }
                             }
                         }
