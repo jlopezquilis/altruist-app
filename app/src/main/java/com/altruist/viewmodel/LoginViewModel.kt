@@ -2,21 +2,21 @@ package com.altruist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.altruist.data.network.dto.auth.LoginRequest
-import com.altruist.data.network.dto.auth.LoginResponse
-import com.altruist.data.network.RetrofitInstance
-import com.altruist.data.repository.AuthRepository
+import com.altruist.data.model.User
+import com.altruist.data.network.dto.user.LoginResponse
+import com.altruist.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: UserRepository
 ) : ViewModel() {
+
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -32,6 +32,8 @@ class LoginViewModel @Inject constructor(
 
     private val _loginResult = MutableStateFlow<Result<LoginResponse>?>(null)
     val loginResult: StateFlow<Result<LoginResponse>?> = _loginResult
+
+    val currentUser: Flow<User?> = repository.getLoggedInUser()
 
     fun onEmailChange(value: String) {
         _email.value = value
@@ -51,9 +53,14 @@ class LoginViewModel @Inject constructor(
         _errorMessage.value = null
 
         viewModelScope.launch {
-            val result = repository.login(_email.value, _password.value)
-            _loginResult.value = result
+            val loginResponseResult = repository.login(_email.value, _password.value)
             _isLoading.value = false
+            loginResponseResult.onSuccess {
+                _loginSuccess.value = true
+            }.onFailure {
+                showError("Error al iniciar sesión.\n${it.message}")
+            }
+            _loginResult.value = loginResponseResult
         }
     }
 

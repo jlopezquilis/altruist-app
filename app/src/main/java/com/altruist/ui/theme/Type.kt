@@ -1,5 +1,6 @@
 package com.altruist.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import com.altruist.R
 
 import androidx.compose.material3.Typography
@@ -24,18 +25,55 @@ val PublicSans = FontFamily(
 )
 
 val Typography = Typography(
+    bodySmall = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 10.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 14.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = PublicSans,
         fontSize = 15.sp
     ),
+    labelMedium = TextStyle(
+        fontFamily = PublicSans,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold
+    ),
     labelLarge = TextStyle(
         fontFamily = PublicSans,
         fontSize = 15.sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.SemiBold
     ),
     titleLarge = TextStyle(
         fontFamily = PublicSans,
-        fontSize = 28.sp,
+        fontSize = 24.sp,
         fontWeight = FontWeight.Bold
     )
 )
+
+val ErrorTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 14.sp
+)
+
+val TitleMediumTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 18.sp,
+    fontWeight = FontWeight.Bold
+)
+
+val BottomMenuTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 12.sp
+)
+
+val TitleSmallTextStyle = TextStyle(
+    fontFamily = PublicSans,
+    fontSize = 16.sp,
+    fontWeight = FontWeight.Bold
+)
+
+

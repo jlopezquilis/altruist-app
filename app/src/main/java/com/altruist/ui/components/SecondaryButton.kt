@@ -12,7 +12,8 @@ import androidx.compose.ui.unit.dp
 fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
@@ -23,7 +24,7 @@ fun SecondaryButton(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(55.dp)
     ) {
         Text(
             text = text,
