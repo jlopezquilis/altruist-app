@@ -3,7 +3,8 @@ package com.altruist.dependecy_injection
 import android.content.Context
 import com.altruist.data.datastore.UserSession
 import com.altruist.data.network.ApiService
-import com.altruist.data.repository.AuthRepository
+import com.altruist.data.repository.UserRepository
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +13,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import okhttp3.OkHttpClient
+import java.util.concurrent.TimeUnit
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -19,9 +23,22 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    fun provideOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS) // Tiempo para conectar
+            .readTimeout(30, TimeUnit.SECONDS)    // Tiempo para leer la respuesta
+            .writeTimeout(30, TimeUnit.SECONDS)   // Tiempo para escribir el cuerpo
+            .build()
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080/")
+            .baseUrl("https://altruist-api-206922921928.europe-west1.run.app")
+            //.baseUrl("http://10.0.2.2:8080/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -43,7 +60,13 @@ object AppModule {
     fun provideAuthRepository(
         apiService: ApiService,
         userSession: UserSession
-    ): AuthRepository {
-        return AuthRepository(apiService, userSession)
+    ): UserRepository {
+        return UserRepository(apiService, userSession)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return FirebaseFirestore.getInstance()
     }
 }
